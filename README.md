@@ -47,7 +47,7 @@ cd quanquan
 pip install -r requirements.txt
 
 # 配置 LLM (可选，不配置也能跑模拟模式)
-export MIMO_API_KEY=sk-xxx     # MiMo V2.5
+export Gemini_API_KEY=sk-xxx     # Gemini
 export DEEPSEEK_API_KEY=sk-xxx # DeepSeek V4
 
 # 启动
@@ -61,9 +61,9 @@ open http://localhost:8000/dashboard
 
 | 层 | 技术 |
 |---|------|
-| AI 调度 | OpenClaw (MiMo V2.5-Pro) — UniVA Planner |
+| AI 调度 | OpenClaw (Claude Sonnet 4) — UniVA Planner |
 | 代码执行 | Hermes Agent (DeepSeek V4 Pro) |
-| LLM 集成 | MiMo V2.5 / DeepSeek / Claude 多模型支持 |
+| LLM 集成 | Gemini / DeepSeek / Claude 多模型支持 |
 | API 框架 | FastAPI + Pydantic |
 | 通信总线 | Redis Streams / 本地队列双模 |
 | 制品存储 | MinIO / S3 / 本地文件系统 |
