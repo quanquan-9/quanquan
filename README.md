@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.11+-blue)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green)](https://fastapi.tiangolo.com)
-[![deepseek](https://img.shields.io/badge/deepseek-v4-pro-red)](https://www.deepseek.com/)
+[![deepseek](https://img.shields.io/badge/deepseek-v4%20pro-red)](https://www.deepseek.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ---
