@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>quanquan · AI 缩略图</title>
+<style>
+:root{--bg:#0a0a0f;--panel:#12121a;--card:#181825;--hover:#1e1e30;--border:#252540;--text:#e8e8f0;--dim:#8888aa;--accent:#7c3aed;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--pink:#ec4899;--radius:12px;--r:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 30%,rgba(236,72,153,.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 70%,rgba(124,58,237,.05) 0%,transparent 50%)}
+nav{position:relative;z-index:10;display:flex;align-items:center;gap:8px;padding:14px 28px;background:rgba(18,18,26,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-wrap:wrap}
+nav .logo{font-weight:800;font-size:18px;color:var(--text);margin-right:auto;display:flex;align-items:center;gap:8px}
+nav a{color:var(--dim);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:20px;transition:all .2s}
+nav a:hover,nav a.active{color:var(--accent2);background:rgba(124,58,237,.1)}
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:28px}
+h1{font-size:28px;margin-bottom:24px;background:linear-gradient(135deg,var(--accent2),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.panel h3{font-size:16px;margin-bottom:16px;color:var(--accent2)}
+input,select{width:100%;padding:10px 14px;background:var(--hover);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;font-family:inherit;margin-bottom:12px;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+.btn{padding:14px 24px;border-radius:var(--r);border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{box-shadow:0 0 24px rgba(124,58,237,.4)}
+.layouts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.lopt{padding:12px 8px;text-align:center;border:2px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:12px;transition:all .2s;color:var(--dim)}
+.lopt:hover,.lopt.sel{border-color:var(--accent);background:rgba(124,58,237,.1);color:var(--accent2)}
+#preview{border-radius:var(--radius);max-width:100%;display:none;margin-top:16px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.preset-btn{padding:10px;text-align:center;border-radius:var(--r);cursor:pointer;font-size:12px;border:1px solid var(--border);transition:all .2s}
+.preset-btn:hover,.preset-btn.sel{background:rgba(124,58,237,.15);border-color:var(--accent)}
+.footer{text-align:center;padding:20px;color:var(--dim);font-size:11px}
+.toast{position:fixed;top:20px;right:20px;z-index:999;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:600;animation:slide .3s ease}
+.t-success{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)}.t-error{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+@keyframes slide{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(max-width:768px){.layouts,.presets{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<nav>
+  <span class="logo">🎬 quanquan</span>
+  <a href="/dashboard">🎛️ 控制台</a>
+  <a href="/api/v1/vfx/presets">🎨 VFX</a>
+  <a href="/api/v1/batch">📦 批量</a>
+  <a href="/api/v1/thumbnail" class="active">🖼️ 缩略图</a>
+</nav>
+<div class="container">
+  <h1>🖼️ AI 缩略图生成器</h1>
+  <div class="panel">
+    <h3>🎨 生成视频封面</h3>
+    <label style="font-size:12px;color:var(--dim);display:block;margin-bottom:4px">视频标题</label>
+    <input id="title" placeholder="我的精彩视频" maxlength="50">
+    <label style="font-size:12px;color:var(--dim);display:block;margin:12px 0 4px">视觉风格</label>
+    <div class="presets" id="styles">
+      <div class="preset-btn sel" onclick="selStyle(this,'auto')">🎯 自动</div>
+      <div class="preset-btn" onclick="selStyle(this,'cyberpunk')">🌃 赛博朋克</div>
+      <div class="preset-btn" onclick="selStyle(this,'nature')">🌿 自然风光</div>
+      <div class="preset-btn" onclick="selStyle(this,'tech')">💻 科技蓝调</div>
+      <div class="preset-btn" onclick="selStyle(this,'warm')">🌅 温暖日落</div>
+      <div class="preset-btn" onclick="selStyle(this,'cinematic')">🎬 电影大片</div>
+    </div>
+    <label style="font-size:12px;color:var(--dim);display:block;margin:12px 0 4px">布局模板</label>
+    <div class="layouts" id="layouts">
+      <div class="lopt sel" onclick="selLayout(this,'centered_title')">📐 居中标题</div>
+      <div class="lopt" onclick="selLayout(this,'split_left_right')">◫ 左右分割</div>
+      <div class="lopt" onclick="selLayout(this,'bottom_bar')">⬜ 底部横条</div>
+      <div class="lopt" onclick="selLayout(this,'cinematic_letterbox')">🎞️ 电影宽幅</div>
+    </div>
+    <button class="btn btn-primary" id="gbtn" onclick="generate()">🎨 生成缩略图</button>
+    <img id="preview" alt="缩略图预览">
+  </div>
+  <div id="result"></div>
+</div>
+<div id="toasts"></div>
+<div class="footer">quanquan v7.0 · AI缩略图引擎</div>
+<script>
+let curStyle='auto',curLayout='centered_title';
+function selStyle(el,s){document.querySelectorAll('#styles .preset-btn').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');curStyle=s}
+function selLayout(el,l){document.querySelectorAll('#layouts .lopt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');curLayout=l}
+function toast(m,t){const c=document.getElementById('toasts'),e=document.createElement('div');e.className='toast t-'+(t||'success');e.textContent=m;c.appendChild(e);setTimeout(()=>{e.style.opacity='0';e.style.transition='.3s';setTimeout(()=>e.remove(),300)},3000)}
+async function generate(){
+  const title=document.getElementById('title').value.trim()||'未命名视频';
+  const btn=document.getElementById('gbtn');btn.disabled=true;btn.textContent='⏳ 生成中...';
+  try{
+    const r=await fetch('/api/v1/thumbnail',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({script:{title,scenes:[{narration:title}]},style:curStyle,layout:curLayout})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const img=document.getElementById('preview');img.src=url;img.style.display='block';
+    document.getElementById('result').innerHTML=`<div class="panel" style="border-left:3px solid var(--green)"><h3 style="color:var(--green)">✅ 生成成功</h3><p style="color:var(--dim);font-size:12px;margin-top:4px">大小: ${(blob.size/1024).toFixed(1)} KB · ${blob.type} · ${curStyle}</p></div>`;
+  }catch(e){document.getElementById('result').innerHTML=`<div class="panel" style="border-left:3px solid var(--red)"><h3 style="color:var(--red)">❌ 失败</h3><p>${e.message}</p></div>`}
+  btn.disabled=false;btn.textContent='🎨 生成缩略图';
+}
+</script>
+</body>
+</html>

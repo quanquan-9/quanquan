@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>quanquan 全自动剪辑 — 导演控制台</title>
+<style>
+/* ============================================================
+   quanquan Dashboard — 赛博朋克暗黑主题
+   ============================================================ */
+:root {
+  --bg-deep: #0a0a0f;
+  --bg-panel: #12121a;
+  --bg-card: #181825;
+  --bg-hover: #1e1e30;
+  --border: #252540;
+  --border-glow: #3a3a60;
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-dim: #555570;
+  --accent: #7c3aed;
+  --accent-glow: #a78bfa;
+  --accent-soft: rgba(124, 58, 237, 0.15);
+  --green: #22c55e;
+  --green-glow: #4ade80;
+  --red: #ef4444;
+  --red-glow: #f87171;
+  --yellow: #f59e0b;
+  --blue: #3b82f6;
+  --pink: #ec4899;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- 背景动态粒子 ---- */
+.bg-particles {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, rgba(236,72,153,0.04) 0%, transparent 60%);
+}
+
+/* ---- 布局 ---- */
+.app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+.sidebar { width: 260px; background: var(--bg-panel); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; }
+.main { flex: 1; padding: 24px 32px; overflow-y: auto; max-height: 100vh; }
+
+/* ---- 侧边栏 ---- */
+.logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+.logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--pink)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.logo-text { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--accent-glow), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: var(--transition); font-size: 14px; text-decoration: none; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-soft); color: var(--accent-glow); }
+.nav-badge { margin-left: auto; background: var(--accent); color: white; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+/* ---- 顶部状态栏 ---- */
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.top-bar h1 { font-size: 26px; font-weight: 700; }
+.status-dot { display: inline-block; width: 10px; height: 10px; background: var(--green); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; box-shadow: 0 0 8px var(--green-glow); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.system-status { display: flex; gap: 16px; align-items: center; font-size: 13px; color: var(--text-secondary); }
+
+/* ---- 卡片 ---- */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: var(--transition); cursor: default; }
+.stat-card:hover { border-color: var(--border-glow); transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-card .label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.stat-card .value { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-card .sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.value.green { color: var(--green); }
+.value.purple { color: var(--accent-glow); }
+.value.blue { color: var(--blue); }
+.value.yellow { color: var(--yellow); }
+
+/* ---- 面板 ---- */
+.panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+.panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.panel-header h3 { font-size: 15px; font-weight: 600; }
+.panel-body { padding: 20px; }
+
+/* ---- 项目列表 ---- */
+.project-list { display: flex; flex-direction: column; gap: 8px; }
+.project-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: var(--bg-hover); border-radius: var(--radius-sm); transition: var(--transition); }
+.project-item:hover { background: rgba(124,58,237,0.08); }
+.project-icon { width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.pi-active { background: rgba(34,197,94,0.15); color: var(--green); }
+.pi-queued { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.pi-done { background: rgba(168,85,247,0.15); color: var(--accent-glow); }
+.project-info { flex: 1; min-width: 0; }
+.project-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.project-meta { font-size: 12px; color: var(--text-secondary); }
+.project-status { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+.ps-active { background: rgba(34,197,94,0.15); color: var(--green); }
+.ps-queued { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.ps-done { background: rgba(124,58,237,0.15); color: var(--accent-glow); }
+
+/* ---- 进度条 ---- */
+.progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--pink)); border-radius: 3px; transition: width 0.5s ease; }
+
+/* ---- DAG 可视化 ---- */
+.dag-view { display: flex; flex-direction: column; gap: 8px; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 13px; }
+.dag-node { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--bg-hover); }
+.dag-node-status { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dns-done { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+.dns-running { background: var(--blue); box-shadow: 0 0 8px var(--blue); animation: pulse 1.5s infinite; }
+.dns-queued { background: var(--text-dim); }
+.dns-failed { background: var(--red); box-shadow: 0 0 8px var(--red-glow); }
+.dag-agent { color: var(--accent-glow); font-weight: 600; min-width: 80px; }
+.dag-task { color: var(--text-secondary); flex: 1; }
+.dag-time { color: var(--text-dim); font-size: 11px; }
+
+/* ---- 日志流 ---- */
+.log-stream { max-height: 300px; overflow-y: auto; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 12px; line-height: 1.7; }
+.log-line { padding: 2px 8px; border-radius: 3px; }
+.log-line:hover { background: rgba(255,255,255,0.03); }
+.log-info { color: var(--text-secondary); }
+.log-warn { color: var(--yellow); }
+.log-error { color: var(--red); background: rgba(239,68,68,0.05); }
+.log-timestamp { color: var(--text-dim); margin-right: 8px; }
+
+/* ---- 按钮 ---- */
+.btn { padding: 8px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #8b5cf6; box-shadow: 0 0 16px rgba(124,58,237,0.3); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--border-glow); color: var(--text-primary); }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.btn-danger:hover { background: rgba(239,68,68,0.1); }
+.btn-sm { padding: 4px 12px; font-size: 11px; }
+
+/* ---- 表单 ---- */
+.input-group { display: flex; gap: 10px; }
+input, textarea, select { background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: var(--transition); }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+textarea { resize: vertical; min-height: 80px; }
+input { flex: 1; }
+
+/* ---- Agent 网格 ---- */
+.agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.agent-card { background: var(--bg-hover); border-radius: var(--radius-sm); padding: 16px; text-align: center; transition: var(--transition); }
+.agent-card:hover { background: rgba(124,58,237,0.08); }
+.agent-emoji { font-size: 28px; margin-bottom: 8px; }
+.agent-name { font-size: 13px; font-weight: 600; }
+.agent-state { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+.agent-state.active { color: var(--green); }
+
+/* ---- GPU 监控 ---- */
+.gpu-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--bg-hover); border-radius: var(--radius-sm); margin-bottom: 8px; }
+.gpu-name { font-weight: 600; font-size: 13px; min-width: 140px; }
+.gpu-usage { flex: 1; }
+.gpu-usage-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.gpu-usage-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.gpu-stats { font-size: 12px; color: var(--text-secondary); min-width: 120px; text-align: right; }
+
+/* ---- 响应式 ---- */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---- 滚动条 ---- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
+
+/* ---- Toast ---- */
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 12px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; animation: slideIn 0.3s ease; box-shadow: var(--shadow); max-width: 360px; }
+.toast-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+.toast-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="bg-particles"></div>
+
+<div class="app">
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🎬</div>
+      <div class="logo-text">quanquan</div>
+    </div>
+    <a class="nav-item active" onclick="switchTab('overview')">📊 总览<span class="nav-badge" id="active-count">0</span></a>
+    <a class="nav-item" onclick="switchTab('projects')">📁 项目</a>
+    <a class="nav-item" id="nav-project-detail" style="display:none" onclick="switchTab('project')">📋 项目详情</a>
+    <a class="nav-item" onclick="switchTab('agents')">🤖 智能体 <span class="nav-badge" id="agent-count">8</span></a>
+    <a class="nav-item" onclick="switchTab('dag')">🔀 DAG 可视化</a>
+    <a class="nav-item" onclick="switchTab('gpu')">⚡ GPU 监控</a>
+    <a class="nav-item" onclick="switchTab('logs')">📋 实时日志</a>
+    <a class="nav-item" onclick="switchTab('create')">✨ 创建项目</a>
+    <a class="nav-item" onclick="switchTab('analytics')">📈 分析面板</a>
+    <a class="nav-item" onclick="switchTab('batch')">📦 批量处理</a>
+    <a class="nav-item" onclick="switchTab('vfx')">🎨 VFX特效</a>
+    <a class="nav-item" onclick="switchTab('publish')">📡 平台发布</a>
+    <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border);">
+      <div style="font-size: 11px; color: var(--text-dim);">v7.0 • 导演控制台</div>
+      <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;" id="uptime">启动中...</div>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main" id="main-content">
+    <!-- 由 JS 动态渲染 -->
+  </main>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ============================================================
+// quanquan Dashboard — 前端逻辑
+// ============================================================
+
+const API = '/api/v1';
+let currentTab = 'overview';
+let ws = null;
+let projectData = {};
+let logBuffer = [];
+let refreshInterval = null;
+
+let currentProjectId = null;
+
+// ---- 初始化 ----
+function init() {
+  connectWebSocket();
+  refreshInterval = setInterval(fetchOverview, 3000);
+  fetchOverview();
+  switchTab('overview');
+}
+
+// ---- WebSocket 实时连接 ----
+function connectWebSocket() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${location.host}/ws`);
+  ws.onopen = () => { logBuffer.push({t: new Date().toISOString(), level: 'info', msg: 'WebSocket 已连接'}); renderLogs(); };
+  ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    handleWSMessage(data);
+  };
+  ws.onclose = () => { setTimeout(connectWebSocket, 3000); };
+}
+
+function handleWSMessage(data) {
+  const { type, payload } = data;
+  switch(type) {
+    case 'agent_status':
+      updateAgentCard(payload.agent, payload.state);
+      break;
+    case 'project_update':
+      projectData[payload.project_id] = payload;
+      refreshCurrentTab();
+      break;
+    case 'log':
+      logBuffer.push({t: new Date().toISOString(), level: payload.level || 'info', msg: payload.msg});
+      if (logBuffer.length > 200) logBuffer.shift();
+      if (currentTab === 'logs') renderLogs();
+      break;
+    case 'dag_node':
+      if (currentTab === 'dag') renderDAG(payload);
+      break;
+    case 'pipeline_complete':
+      showToast(`🎉 项目 ${payload.project_id} 完成！`, 'success');
+      break;
+  }
+}
+
+// ---- Tab 切换 ----
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelector(`.nav-item[onclick="switchTab('${tab}')"]`)?.classList.add('active');
+  refreshCurrentTab();
+}
+
+function refreshCurrentTab() {
+  switch(currentTab) {
+    case 'overview': renderOverview(); break;
+    case 'projects': renderProjects(); break;
+    case 'project': renderProjectDetail(currentProjectId); break;
+    case 'agents': renderAgents(); break;
+    case 'dag': fetchAndRenderDAG(); break;
+    case 'gpu': renderGPUMonitor(); break;
+    case 'logs': renderLogs(); break;
+    case 'create': renderCreateForm(); break;
+    case 'analytics': renderAnalytics(); break;
+    case 'batch': renderBatch(); break;
+    case 'vfx': renderVFX(); break;
+    case 'publish': renderPublish(); break;
+  }
+}
+
+// ---- 获取数据 ----
+async function fetchOverview() {
+  try {
+    const r = await fetch(`${API}/director/status`);
+    const data = await r.json();
+    document.getElementById('uptime').textContent = `运行 ${formatUptime(data.uptime_seconds)}`;
+    document.getElementById('active-count').textContent = data.active_projects || 0;
+    if (currentTab === 'overview') renderOverviewData(data);
+  } catch(e) {
+    console.error('fetchOverview failed:', e);
+    document.getElementById('uptime').textContent = '连接中...';
+  }
+}
+
+async function fetchAndRenderDAG() {
+  try {
+    const r = await fetch(`${API}/director/projects`);
+    const resp = await r.json();
+    const data = resp.data?.projects || resp.projects || [];
+    renderDAG(data);
+  } catch(e) {
+    console.error('fetchAndRenderDAG failed:', e);
+  }
+}
+
+// ---- 总览页 ----
+function renderOverview() {
+  fetch(`${API}/director/status`).then(r => r.json()).then(renderOverviewData).catch(e => { console.error('renderOverview fetch failed:', e); });
+}
+
+function renderOverviewData(data) {
+  const active = data.active_projects || 0;
+  const queued = data.queue_depth || 0;
+  const done = data.completed_projects || 0;
+  const gpuUsage = data.gpu_utilization || 0;
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="top-bar">
+      <h1><span class="status-dot"></span>导演控制台</h1>
+      <div class="system-status">
+        <span>🟢 系统正常</span>
+        <span>GPU ${gpuUsage}%</span>
+        <span>${data.uptime_seconds ? formatUptime(data.uptime_seconds) : ''}</span>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="stat-card">
+        <div class="label">活跃项目</div>
+        <div class="value green">${active}</div>
+        <div class="sub">正在处理中</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">队列等待</div>
+        <div class="value yellow">${queued}</div>
+        <div class="sub">${data.queue_name || 'video_long'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">已完成</div>
+        <div class="value purple">${done}</div>
+        <div class="sub">累计交付数</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">一次成优率</div>
+        <div class="value blue">${data.qc_pass_rate ? (data.qc_pass_rate*100).toFixed(0) : '--'}%</div>
+        <div class="sub">无需人工修改</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><h3>📊 最近项目</h3><button class="btn btn-ghost btn-sm" onclick="switchTab('projects')">查看全部 →</button></div>
+      <div class="panel-body" id="recent-projects">
+        <div style="color:var(--text-dim); text-align:center; padding:20px;">暂无项目</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><h3>🤖 Agent 状态</h3></div>
+      <div class="panel-body">
+        <div class="agent-grid" id="agent-mini-grid"></div>
+      </div>
+    </div>
+  `;
+
+  renderAgentMiniGrid();
+  fetchRecentProjects();
+}
+
+function renderAgentMiniGrid() {
+  const agents = [
+    {name:'导演', emoji:'🎬', state:'monitoring'},
+    {name:'编剧', emoji:'✍️', state:'idle'},
+    {name:'分镜', emoji:'🎞️', state:'idle'},
+    {name:'配音', emoji:'🎙️', state:'idle'},
+    {name:'BGM', emoji:'🎵', state:'idle'},
+    {name:'调色', emoji:'🎨', state:'idle'},
+    {name:'审核', emoji:'🔍', state:'idle'},
+    {name:'交付', emoji:'📦', state:'idle'},
+  ];
+  const grid = document.getElementById('agent-mini-grid');
+  if (!grid) return;
+  grid.innerHTML = agents.map(a => `
+    <div class="agent-card">
+      <div class="agent-emoji">${a.emoji}</div>
+      <div class="agent-name">${a.name}</div>
+      <div class="agent-state ${a.state === 'monitoring' ? 'active' : ''}">${a.state === 'monitoring' ? '● 运行中' : '○ 待命'}</div>
+    </div>
+  `).join('');
+}
+
+async function fetchRecentProjects() {
+  try {
+    const r = await fetch(`${API}/director/projects`);
+    const resp = await r.json();
+    const projects = resp.data?.projects || resp.projects || [];
+    const container = document.getElementById('recent-projects');
+    if (!container) return;
+    if (!projects || projects.length === 0) return;
+    container.innerHTML = projects.slice(0, 5).map(p => `
+      <div class="project-item" onclick="viewProject('${p.project_id}')" style="cursor:pointer">
+        <div class="project-icon ${p.status === 'active' ? 'pi-active' : p.status === 'queued' ? 'pi-queued' : 'pi-done'}">${p.status === 'active' ? '▶' : p.status === 'queued' ? '⏳' : '✓'}</div>
+        <div class="project-info">
+          <div class="project-name">${p.name || p.project_id}</div>
+          <div class="project-meta">${p.duration || '--'}s · ${(p.created_at||'').slice(11,19)}</div>
+          ${p.progress !== undefined ? `<div class="progress-bar"><div class="progress-fill" style="width:${p.progress*100}%"></div></div>` : ''}
+        </div>
+        <div class="project-status ${p.status === 'active' ? 'ps-active' : p.status === 'queued' ? 'ps-queued' : 'ps-done'}">${p.status === 'active' ? '处理中' : p.status === 'queued' ? '排队' : '完成'}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error('fetchRecentProjects failed:', e);
+  }
+}
+
+// ---- 项目页 ----
+function renderProjects() {
+  fetch(`${API}/director/projects`).then(r => r.json()).then(resp => {
+    const projects = resp.data?.projects || resp.projects || [];
+    document.getElementById('main-content').innerHTML = `
+      <div class="top-bar">
+        <h1>📁 项目列表</h1>
+        <button class="btn btn-primary" onclick="switchTab('create')">+ 新建项目</button>
+      </div>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="project-list" id="project-list"></div>
+        </div>
+      </div>
+    `;
+    const list = document.getElementById('project-list');
+    if (!projects || projects.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-dim); text-align:center; padding:40px;">🎬 还没有项目，点击右上角创建第一个吧</div>';
+      return;
+    }
+    list.innerHTML = projects.map(p => `
+      <div class="project-item" onclick="viewProject('${p.project_id}')" style="cursor:pointer">
+        <div class="project-icon ${p.status === 'active' ? 'pi-active' : p.status === 'queued' ? 'pi-queued' : 'pi-done'}">${p.status === 'active' ? '▶' : p.status === 'queued' ? '⏳' : '✓'}</div>
+        <div class="project-info">
+          <div class="project-name">${p.name || p.project_id}</div>
+          <div class="project-meta">时长 ${p.duration || '--'}s · 创建 ${(p.created_at||'').slice(11,19)}</div>
+          ${p.progress !== undefined ? `<div class="progress-bar"><div class="progress-fill" style="width:${p.progress*100}%"></div></div>` : ''}
+        </div>
+        <div class="project-status ${p.status === 'active' ? 'ps-active' : p.status === 'queued' ? 'ps-queued' : 'ps-done'}">${p.status === 'active' ? '处理中' : p.status === 'queued' ? '排队' : '完成'}</div>
+        ${p.status === 'completed' ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewProject('${p.project_id}')">📋 查看</button>` : ''}
+      </div>
+    `).join('');
+  }).catch(e => { console.error('renderProjects fetch failed:', e); });
+}
+
+// ---- 项目详情 ----
+function viewProject(projectId) {
+  currentProjectId = projectId;
+  document.getElementById('nav-project-detail').style.display = '';
+  switchTab('project');
+}
+
+async function renderProjectDetail(projectId) {
+  if (!projectId) {
+    document.getElementById('main-content').innerHTML = '<div class="top-bar"><h1>📋 项目详情</h1></div><div style="color:var(--text-dim);text-align:center;padding:40px;">请从项目列表选择一个项目</div>';
+    return;
+  }
+
+  const [statusR, artifactsR] = await Promise.all([
+    fetch(`${API}/projects/${projectId}/status`).then(r => r.json()).catch(() => ({})),
+    fetch(`${API}/projects/${projectId}/artifacts`).then(r => r.json()).catch(() => ({artifacts:[]})),
+  ]);
+
+  const statusLabel = statusR.status === 'completed' ? '✅ 已完成' : statusR.status === 'active' ? '🔄 处理中' : statusR.status === 'cancelled' ? '❌ 已取消' : '⏳ 排队中';
+  const progressPct = (statusR.progress || 0) * 100;
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="top-bar">
+      <h1>📋 ${statusR.name || projectId}</h1>
+      <div style="display:flex;gap:8px;">
+        ${statusR.status !== 'completed' && statusR.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" onclick="cancelProject('${projectId}')">🗑️ 取消项目</button>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="switchTab('projects')">← 返回列表</button>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="stat-card"><div class="label">状态</div><div class="value green">${statusLabel}</div></div>
+      <div class="stat-card"><div class="label">进度</div><div class="value purple">${progressPct.toFixed(0)}%</div>
+        <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:${progressPct}%"></div></div></div>
+      <div class="stat-card"><div class="label">产物数</div><div class="value blue">${artifactsR.artifacts ? artifactsR.artifacts.length : 0}</div></div>
+      <div class="stat-card"><div class="label">当前阶段</div><div class="value yellow" style="font-size:14px;">${statusR.state || '--'}</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><h3>📁 产物文件</h3><span style="color:var(--text-secondary);font-size:12px;">${artifactsR.artifact_path || ''}</span></div>
+      <div class="panel-body">
+        ${!artifactsR.artifacts || artifactsR.artifacts.length === 0 ? 
+          '<div style="color:var(--text-dim);text-align:center;padding:20px;">暂无产物，项目可能还在处理中</div>' :
+          artifactsR.artifacts.map(a => `
+          <div class="project-item" onclick="viewArtifact('${projectId}', '${a.name}')" style="cursor:pointer">
+            <div class="project-icon pi-done">📄</div>
+            <div class="project-info">
+              <div class="project-name">${a.name}</div>
+              <div class="project-meta">${a.type} · ${(a.size_bytes/1024).toFixed(1)}KB · ${a.latest_version}</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewArtifact('${projectId}','${a.name}')">👁️ 查看</button>
+          </div>`).join('')
+        }
+      </div>
+    </div>
+
+    ${artifactsR.dashboard_url ? `<div style="text-align:center;margin-top:16px;"><a href="${artifactsR.dashboard_url}" style="color:var(--accent-glow);text-decoration:none;">🔗 项目直达链接</a></div>` : ''}
+  `;
+}
+
+async function viewArtifact(projectId, name) {
+  try {
+    const r = await fetch(`${API}/projects/${projectId}/artifacts`);
+    const data = await r.json();
+    const artifact = (data.artifacts||[]).find(a => a.name === name);
+    if (!artifact) return showToast('产物未找到', 'error');
+    
+    const resp = await fetch(`/artifacts/${artifact.path}`);
+    const content = await resp.text();
+    let formatted;
+    try { formatted = JSON.stringify(JSON.parse(content), null, 2); } catch { formatted = content; }
+
+    document.getElementById('main-content').innerHTML = `
+      <div class="top-bar">
+        <h1>📄 ${name}</h1>
+        <button class="btn btn-ghost btn-sm" onclick="viewProject('${projectId}')">← 返回项目</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>${artifact.path}</h3><span style="color:var(--text-dim);font-size:12px;">${(artifact.size_bytes/1024).toFixed(1)}KB</span></div>
+        <div class="panel-body">
+          <pre style="background:var(--bg-hover);padding:16px;border-radius:8px;overflow:auto;max-height:70vh;font-size:12px;line-height:1.5;color:var(--text-primary);white-space:pre-wrap;word-break:break-all;">${escapeHtml(formatted)}</pre>
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    showToast('加载产物失败: ' + e.message, 'error');
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function cancelProject(projectId) {
+  if (!confirm('确定取消项目 ' + projectId + '?')) return;
+  try {
+    await fetch(`${API}/projects/${projectId}`, {method:'DELETE'});
+    showToast('项目已取消', 'success');
+    setTimeout(() => viewProject(projectId), 500);
+  } catch(e) { showToast('取消失败', 'error'); }
+}
+
+function showToast(msg, type) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + (type||'success');
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ---- Agent 页 ----
+function renderAgents() {
+  const agents = [
+    {name:'导演 Director', emoji:'🎬', state:'monitoring', desc:'UniVA Planner · 11状态机 · DAG编排'},
+    {name:'编剧 Scriptwriter', emoji:'✍️', state:'idle', desc:'LLM脚本生成 · 情感标注 · SRT字幕'},
+    {name:'分镜 Storyboard', emoji:'🎞️', state:'idle', desc:'视觉规划 · 素材语义匹配 · 镜头语言'},
+    {name:'配音 Voiceover', emoji:'🎙️', state:'idle', desc:'TTS合成 · 情感驱动音调 · 音频归一化'},
+    {name:'BGM Music', emoji:'🎵', state:'idle', desc:'情绪匹配 · 节拍检测 · 智能裁剪'},
+    {name:'调色 ColorGrade', emoji:'🎨', state:'idle', desc:'风格迁移 · LUT注入 · 一致性约束'},
+    {name:'审核 QC', emoji:'🔍', state:'idle', desc:'黑场/爆音/字幕/音画同步 · 6检测器'},
+    {name:'交付 Delivery', emoji:'📦', state:'idle', desc:'剪映草稿 · 导演笔记 · 多格式分发'},
+  ];
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="top-bar"><h1>🤖 智能体集群</h1><span style="color:var(--text-secondary)">8 Agents · 全并行DAG</span></div>
+    <div class="agent-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));" id="agent-full-grid"></div>
+  `;
+
+  document.getElementById('agent-full-grid').innerHTML = agents.map(a => `
+    <div class="agent-card" style="text-align:left;padding:20px;">
+      <div style="font-size:32px;margin-bottom:8px;">${a.emoji}</div>
+      <div class="agent-name" style="font-size:15px;">${a.name}</div>
+      <div class="agent-state ${a.state === 'monitoring' ? 'active' : ''}" style="font-size:12px;margin-top:6px;">${a.state === 'monitoring' ? '● 运行中' : '○ 待命'}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:10px;">${a.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ---- DAG 可视化 ----
+function renderDAG(data) {
+  document.getElementById('main-content').innerHTML = `
+    <div class="top-bar"><h1>🔀 DAG 执行图</h1><span style="color:var(--text-secondary)">实时任务依赖拓扑</span></div>
+    <div class="panel">
+      <div class="panel-body"><div class="dag-view" id="dag-view"></div></div>
+    </div>
+  `;
+
+  const nodes = data?.nodes || demoDAGNodes();
+  document.getElementById('dag-view').innerHTML = nodes.map(n => `
+    <div class="dag-node">
+      <div class="dag-node-status ${n.status === 'done' ? 'dns-done' : n.status === 'running' ? 'dns-running' : n.status === 'failed' ? 'dns-failed' : 'dns-queued'}"></div>
+      <div class="dag-agent">${n.agent}</div>
+      <div class="dag-task">${n.task}</div>
+      <div class="dag-time">${n.time || '--'}</div>
+    </div>
+  `).join('');
+}
+
+function demoDAGNodes() {
+  return [
+    {agent:'导演', task:'解析意图 + 拉取记忆画像', status:'done', time:'0.8s'},
+    {agent:'导演', task:'构建DAG任务图', status:'done', time:'1.2s'},
+    {agent:'编剧', task:'生成脚本 + SRT字幕', status:'running', time:'进行中...'},
+    {agent:'分镜', task:'视觉规划 + 素材匹配', status:'running', time:'进行中...'},
+    {agent:'BGM', task:'音乐检索 + 节拍对齐', status:'queued', time:'等待依赖'},
+    {agent:'配音', task:'TTS合成 + 音频处理', status:'queued', time:'等待编剧'},
+    {agent:'调色', task:'风格迁移 + LUT注入', status:'queued', time:'等待分镜'},
+    {agent:'审核', task:'逐节点质检', status:'queued', time:'等待上游'},
+    {agent:'交付', task:'组装剪映草稿 + 导出', status:'queued', time:'等待审核'},
+  ];
+}
+
+// ---- GPU 监控 ----
+function renderGPUMonitor() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="top-bar"><h1>⚡ GPU 监控</h1><span style="color:var(--text-secondary)">硬件加速状态</span></div>
+    <div class="panel">
+      <div class="panel-header"><h3>GPU 使用率</h3></div>
+      <div class="panel-body" id="gpu-panel">
+        <div style="color:var(--text-dim); text-align:center; padding:20px;">正在检测 GPU...</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>编码统计</h3></div>
+      <div class="panel-body">
+        <div class="card-grid">
+          <div class="stat-card"><div class="label">今日编码</div><div class="value purple">--</div></div>
+          <div class="stat-card"><div class="label">GPU 加速比</div><div class="value green">--</div></div>
+          <div class="stat-card"><div class="label">节省时间</div><div class="value blue">--</div></div>
+          <div class="stat-card"><div class="label">编码器</div><div class="value yellow">--</div></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 尝试检测 GPU
+  fetch(`${API}/director/status`).then(r => r.json()).then(d => {
+    const panel = document.getElementById('gpu-panel');
+    panel.innerHTML = `
+      <div class="gpu-bar">
+        <div class="gpu-name">🖥️ ${d.gpu_name || 'NVIDIA GPU'}</div>
+        <div class="gpu-usage">
+          <div class="gpu-usage-bar"><div class="gpu-usage-fill" style="width:${d.gpu_utilization||30}%;background:linear-gradient(90deg,var(--accent),var(--green))"></div></div>
+        </div>
+        <div class="gpu-stats">${d.gpu_utilization||'--'}% · ${d.gpu_vram_used||'--'}/${d.gpu_vram_total||'--'} MB</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:8px;">编码器: ${d.gpu_encoder||'h264_nvenc'} · 驱动: ${d.gpu_driver||'--'}</div>
+    `;
+  }).catch(() => {
+    document.getElementById('gpu-panel').innerHTML = '<div class="gpu-bar"><div class="gpu-name">⚠️ 未检测到 GPU</div><div class="gpu-stats">使用 CPU 软件编码 (libx264)</div></div>';
+  });
+}
+
+// ---- 日志页 ----
+function renderLogs() {
+  if (!document.getElementById('log-container')) {
+    document.getElementById('main-content').innerHTML = `
+      <div class="top-bar"><h1>📋 实时日志</h1><button class="btn btn-ghost btn-sm" onclick="logBuffer=[];renderLogs()">清空</button></div>
+      <div class="panel"><div class="panel-body"><div class="log-stream" id="log-container"></div></div></div>
+    `;
+  }
+  const container = document.getElementById('log-container');
+  if (!container) return;
+  container.innerHTML = logBuffer.length === 0
+    ? '<div style="color:var(--text-dim);text-align:center;padding:40px;">等待日志...</div>'
+    : logBuffer.slice(-100).map(l => `
+      <div class="log-line log-${l.level}"><span class="log-timestamp">${new Date(l.t).toLocaleTimeString()}</span>${l.msg}</div>
+    `).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+// ---- 创建项目 ----
+function renderCreateForm() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="top-bar"><h1>✨ 创建新项目</h1></div>
+    <div class="panel">
+      <div class="panel-header"><h3>项目信息</h3></div>
+      <div class="panel-body">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">视频主题 (文本描述)</label>
+            <textarea id="create-text" placeholder="例如：3分钟赛博朋克风科技解说视频，参考附件的Vlog节奏..."></textarea>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;">
+              <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">目标时长 (秒)</label>
+              <input type="number" id="create-duration" value="180" min="10" max="3600">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">风格</label>
+              <select id="create-style" style="max-height:200px">
+                <option value="auto">🎨 自动检测</option>
+                <optgroup label="━━ 电影级 ━━">
+                  <option value="cinematic_teal">🎬 电影青橙</option>
+                  <option value="cinematic_gold">🎬 电影金调</option>
+                  <option value="cinematic_noir">🎬 黑色电影</option>
+                  <option value="blockbuster">🎬 好莱坞大片</option>
+                  <option value="indie_film">🎬 独立电影</option>
+                </optgroup>
+                <optgroup label="━━ 创意风格 ━━">
+                  <option value="cyberpunk">🌆 赛博朋克</option>
+                  <option value="vaporwave">🌴 蒸汽波</option>
+                  <option value="glitch_core">💾 故障艺术</option>
+                  <option value="retro_pop">🕹️ 复古波普</option>
+                  <option value="synthwave">🎹 合成波</option>
+                </optgroup>
+                <optgroup label="━━ 国风雅韵 ━━">
+                  <option value="ink_wash">🖌️ 水墨国风</option>
+                  <option value="chinese_red">🏮 中国红</option>
+                  <option value="porcelain">🏺 青花瓷</option>
+                  <option value="dunhuang">🎭 敦煌壁画</option>
+                </optgroup>
+                <optgroup label="━━ 复古记忆 ━━">
+                  <option value="vintage_film">📽️ 复古胶片</option>
+                  <option value="vintage_sepia">📷 复古棕褐</option>
+                  <option value="70s_film">📼 70年代</option>
+                  <option value="8mm_home_video">🎞️ 8毫米</option>
+                  <option value="super8">🎥 Super8</option>
+                </optgroup>
+                <optgroup label="━━ 二次元 ━━">
+                  <option value="anime">🌸 二次元</option>
+                  <option value="ghibli">🌿 吉卜力</option>
+                  <option value="manga">📖 漫画风</option>
+                  <option value="pixel_art">👾 像素风</option>
+                </optgroup>
+                <optgroup label="━━ 现代简约 ━━">
+                  <option value="modern">✨ 现代简约</option>
+                  <option value="minimal_bw">⬜ 极简黑白</option>
+                  <option value="apple_style">🍎 Apple风</option>
+                </optgroup>
+                <optgroup label="━━ 温暖柔情 ━━">
+                  <option value="warm_sunset">🌅 温暖日落</option>
+                  <option value="golden_hour">🌟 黄金时刻</option>
+                  <option value="autumn_glow">🍂 秋日暖阳</option>
+                  <option value="soft_blush">💕 柔粉腮红</option>
+                  <option value="pastel_dream">🦄 粉彩梦境</option>
+                </optgroup>
+                <optgroup label="━━ 清冷高级 ━━">
+                  <option value="cool_moonlight">🌙 清冷月光</option>
+                  <option value="arctic_blue">❄️ 极地冰蓝</option>
+                  <option value="documentary_neutral">📰 纪录中性</option>
+                </optgroup>
+                <optgroup label="━━ 美食美物 ━━">
+                  <option value="food_warm">🍜 美食暖调</option>
+                  <option value="bakery_fresh">🥐 烘焙鲜香</option>
+                  <option value="japanese_cuisine">🍣 日料雅致</option>
+                </optgroup>
+                <optgroup label="━━ 城市探索 ━━">
+                  <option value="urban_grit">🏙️ 都市硬朗</option>
+                  <option value="night_city">🌃 夜色都市</option>
+                  <option value="tokyo_drift">🗼 东京漂移</option>
+                </optgroup>
+                <optgroup label="━━ 旅行冒险 ━━">
+                  <option value="travel_bright">✈️ 旅行明快</option>
+                  <option value="tropical_vibe">🏝️ 热带风情</option>
+                  <option value="european_summer">🏰 欧洲夏日</option>
+                </optgroup>
+                <optgroup label="━━ 自然风光 ━━">
+                  <option value="nature_vivid">🌿 自然鲜艳</option>
+                  <option value="forest_green">🌲 森林绿意</option>
+                  <option value="ocean_depth">🌊 深海幽蓝</option>
+                  <option value="desert_dusk">🏜️ 沙漠黄昏</option>
+                </optgroup>
+                <optgroup label="━━ 人物肖像 ━━">
+                  <option value="portrait_soft">👤 人像柔肤</option>
+                  <option value="fashion_editorial">👗 时尚大片</option>
+                  <option value="street_portrait">🚶 街头人像</option>
+                </optgroup>
+                <optgroup label="━━ 特殊场景 ━━">
+                  <option value="sci_fi_cool">🚀 科幻冷调</option>
+                  <option value="horror_dark">👻 恐怖暗调</option>
+                  <option value="wedding_love">💒 婚礼爱情</option>
+                  <option value="kids_cartoon">🧒 儿童卡通风</option>
+                  <option value="sports_action">⚽ 运动激情</option>
+                  <option value="music_performance">🎸 音乐演出</option>
+                  <option value="game_style">🎮 游戏电竞</option>
+                </optgroup>
+              </select>
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">优先级</label>
+              <select id="create-priority">
+                <option value="normal">普通</option>
+                <option value="high">高</option>
+                <option value="urgent">紧急</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">参考素材 URL (可选，逗号分隔)</label>
+            <input type="text" id="create-refs" placeholder="视频/图片/音频 URL...">
+          </div>
+          <button class="btn btn-primary" style="align-self:flex-start;padding:12px 32px;" onclick="createProject()">
+            🚀 启动创作
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function createProject() {
+  const text = document.getElementById('create-text').value.trim();
+  if (!text) { showToast('请输入视频主题描述', 'error'); return; }
+
+  const payload = {
+    text: text,
+    duration: parseInt(document.getElementById('create-duration').value) || 180,
+    style: document.getElementById('create-style').value,
+    priority: document.getElementById('create-priority').value,
+    refs: document.getElementById('create-refs').value.split(',').map(s => s.trim()).filter(Boolean),
+  };
+
+  try {
+    const r = await fetch(`${API}/create`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    showToast(`✅ 项目已创建: ${data.project_id}`, 'success');
+    switchTab('projects');
+  } catch(e) {
+    showToast('创建失败，请检查后端服务', 'error');
+  }
+}
+
+// ---- 工具函数 ----
+function formatUptime(seconds) {
+  if (!seconds) return '--';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+function updateAgentCard(agent, state) {
+  const cards = document.querySelectorAll('.agent-card');
+  cards.forEach(c => {
+    if (c.querySelector('.agent-name')?.textContent?.includes(agent)) {
+      const stateEl = c.querySelector('.agent-state');
+      if (stateEl) {
+        stateEl.className = `agent-state ${state === 'monitoring' || state === 'running' ? 'active' : ''}`;
+        stateEl.textContent = state === 'monitoring' ? '● 运行中' : state === 'running' ? '● 工作中' : '○ 待命';
+      }
+    }
+  });
+}
+
+// ---- 分析面板 ----
+async function renderAnalytics() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = `
+    <div class="top-bar"><h1>📈 分析面板</h1><span style="color:var(--text-dim)">实时数据 · 自动刷新</span></div>
+    <div id="analytics-content" style="padding:20px; color:var(--text-dim);">加载中...</div>
+  `;
+  await loadAnalytics();
+  setInterval(loadAnalytics, 10000); // 每10秒刷新
+}
+
+async function loadAnalytics() {
+  try {
+    const [dashResp, costResp] = await Promise.all([
+      fetch(`${API}/analytics/dashboard-data`),
+      fetch(`${API}/analytics/cost`),
+    ]);
+    const dash = await dashResp.json();
+    const cost = await costResp.json();
+
+    document.getElementById('analytics-content').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+        ${statCard('📁 项目总数', dash.projects?.created||0, 'var(--blue)')}
+        ${statCard('✅ 完成率', Math.round((dash.projects?.completion_rate||0)*100)+'%', 'var(--green)')}
+        ${statCard('🎬 视频总时长', (dash.video?.total_seconds||0).toFixed(0)+'s', 'var(--pink)')}
+        ${statCard('💰 预估成本', '$'+ (cost.total_usd||0).toFixed(4), 'var(--yellow)')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="panel" style="padding:16px;">
+          <h3 style="color:var(--text-primary);margin-bottom:12px;">🤖 LLM 调用统计</h3>
+          ${renderLLMStats(dash.llm||{})}
+        </div>
+        <div class="panel" style="padding:16px;">
+          <h3 style="color:var(--text-primary);margin-bottom:12px;">🎯 质量指标</h3>
+          ${renderQualityStats(dash)}
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('analytics-content').innerHTML = '<div style="color:var(--red);text-align:center;padding:40px;">加载失败: '+e.message+'</div>';
+  }
+}
+
+function statCard(label, value, color) {
+  return `<div class="stat-card" style="border-left:3px solid ${color};">
+    <div class="label">${label}</div>
+    <div class="value" style="color:${color}">${value}</div>
+  </div>`;
+}
+
+function renderLLMStats(llm) {
+  if (!llm || !llm.by_provider || !Object.keys(llm.by_provider).length) {
+    return '<div style="color:var(--text-dim);padding:12px;">暂无LLM调用记录</div>';
+  }
+  return Object.entries(llm.by_provider||{}).map(([name,stats]) => 
+    `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span>${name}</span>
+      <span style="color:var(--accent-glow)">${stats.calls||0} 次 · ${stats.total_tokens||0} tokens</span>
+    </div>`
+  ).join('');
+}
+
+function renderQualityStats(dash) {
+  return `
+    <div style="padding:8px 0;border-bottom:1px solid var(--border);">平均渲染时间: <b>${(dash.video?.avg_render_time_sec||0).toFixed(1)}s</b></div>
+    <div style="padding:8px 0;border-bottom:1px solid var(--border);">TTS调用: <b>${dash.tts?.total_generated||0} 次</b></div>
+    <div style="padding:8px 0;">错误率: <b style="color:${(dash.errors?.error_rate||0)>0.1?'var(--red)':'var(--green)'}">${((dash.errors?.error_rate||0)*100).toFixed(1)}%</b></div>
+  `;
+}
+
+// ---- 批量处理 ----
+async function renderBatch() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = `
+    <div class="top-bar"><h1>📦 批量处理</h1></div>
+    <div style="padding:20px;max-width:800px;">
+      <div class="panel" style="padding:24px;margin-bottom:24px;">
+        <h3 style="margin-bottom:16px;">批量创建项目</h3>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">项目列表（每行一个主题，或 JSON 格式）</label>
+          <textarea id="batch-input" rows="6" style="width:100%;padding:12px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:monospace;" 
+            placeholder="赛博朋克夜景,60,cyberpunk&#10;春日花海延时,120,nature&#10;科技产品评测,180,tech"></textarea>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">最大并发数</label>
+          <input type="number" id="batch-concurrency" value="3" min="1" max="10" style="width:80px;padding:8px;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);">
+        </div>
+        <button class="btn btn-primary" onclick="submitBatch()">🚀 批量提交</button>
+      </div>
+      <div id="batch-result" style="color:var(--text-dim);"></div>
+    </div>
+  `;
+}
+
+async function submitBatch() {
+  const raw = document.getElementById('batch-input').value.trim();
+  if (!raw) { showToast('请输入项目列表', 'error'); return; }
+
+  const lines = raw.split('\n').filter(l => l.trim());
+  const requests = lines.map(line => {
+    const parts = line.split(',');
+    return {
+      text: (parts[0]||'').trim(),
+      duration: parseInt(parts[1]) || 180,
+      style: (parts[2]||'auto').trim(),
+    };
+  });
+
+  try {
+    const r = await fetch(`${API}/batch/submit`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({requests, max_concurrency: parseInt(document.getElementById('batch-concurrency').value)||3}),
+    });
+    const data = await r.json();
+    document.getElementById('batch-result').innerHTML = `
+      <div class="panel" style="padding:16px;border-left:3px solid var(--green);">
+        <h3 style="color:var(--green-glow)">✅ 批量提交成功</h3>
+        <p style="margin:8px 0;">批次ID: <code style="color:var(--accent-glow)">${data.batch_id}</code></p>
+        <p>共 <b>${data.total}</b> 个项目，当前排队: ${data.status.queued}，处理中: ${data.status.processing}</p>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('batch-result').innerHTML = `<div style="color:var(--red);padding:16px;">提交失败: ${e.message}</div>`;
+  }
+}
+
+// ---- VFX 特效面板 ----
+async function renderVFX() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = '<div class="top-bar"><h1>🎨 VFX 特效引擎</h1></div><div id="vfx-content" style="padding:20px;color:var(--text-dim)">加载中...</div>';
+  try {
+    const [pResp, tResp] = await Promise.all([
+      fetch(`${API}/vfx/presets-data`), fetch(`${API}/vfx/transitions`)
+    ]);
+    const presetsRaw = await pResp.json();
+    const transitionsRaw = await tResp.json();
+
+    // 兼容 dict/array 两种格式
+    const rawP = presetsRaw.data?.presets || presetsRaw.presets || {};
+    const presets = Array.isArray(rawP) ? rawP : Object.entries(rawP).map(([id, v]) => ({...v, id}));
+    const rawT = transitionsRaw.data?.transitions || transitionsRaw.transitions || {};
+    const transitions = Array.isArray(rawT) ? rawT : Object.values(rawT);
+
+    const particles = [{name:'❄️ 飘雪',id:'snow'},{name:'🌧️ 下雨',id:'rain'},{name:'🔥 火焰',id:'fire'},{name:'✨ 星光',id:'sparkle'},{name:'🎊 彩纸',id:'confetti'}];
+    document.getElementById('vfx-content').innerHTML = `
+      <div style="margin-bottom:24px"><h3 style="color:var(--accent-glow);margin-bottom:12px">🎬 电影级滤镜 (${presets.length}种)</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+          ${presets.map(p => `<div class="panel" style="padding:14px;cursor:pointer" onclick="showToast('${p.name}: ${p.desc||''}','success')">
+            <div style="font-weight:600;color:var(--accent-glow)">${p.name}</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:4px">${p.desc||p.mood||p.filter?.slice(0,30)||''}</div></div>`).join('')}
+        </div></div>
+      <div style="margin-bottom:24px"><h3 style="color:var(--accent-glow);margin-bottom:12px">✨ 粒子特效</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">${particles.map(p=>`<span class="panel" style="padding:10px 16px;font-size:14px">${p.name}</span>`).join('')}</div></div>
+      <div><h3 style="color:var(--accent-glow);margin-bottom:12px">🔀 创意转场 (${transitions.length}种)</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">${transitions.map(t=>`<span class="panel" style="padding:10px 16px;font-size:14px">${t.name||t}</span>`).join('')}</div></div>`;
+  } catch(e) { document.getElementById('vfx-content').innerHTML = `<div style="color:var(--red);padding:40px;text-align:center">加载失败: ${e.message}</div>`; }
+}
+
+// ---- 平台发布面板 ----
+async function renderPublish() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = `
+    <div class="top-bar"><h1>📡 多平台发布</h1></div>
+    <div style="padding:20px;max-width:800px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
+        ${['bilibili','douyin','youtube'].map(p => {
+          const icons = {bilibili:'📺  B站',douyin:'🎵 抖音',youtube:'▶️ YouTube'};
+          const colors = {bilibili:'#fb7299',douyin:'#ff0050',youtube:'#ff0000'};
+          return `<div class="panel" style="padding:20px;text-align:center;border-top:3px solid ${colors[p]}">
+            <div style="font-size:32px;margin-bottom:8px">${icons[p].split(' ')[0]}</div>
+            <div style="font-weight:700;font-size:16px;color:${colors[p]}">${icons[p].split(' ')[1]||p}</div>
+            <div style="font-size:12px;color:var(--text-dim);margin:8px 0">1080p · H.264 · &lt;4GB</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="panel" style="padding:24px">
+        <h3 style="margin-bottom:16px">🚀 发布视频</h3>
+        <div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text-dim)">视频路径</label>
+          <input id="pub-path" placeholder="/data/quanquan/output/proj_xxx.mp4" style="width:100%;padding:10px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);margin-top:4px"></div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text-dim)">标题</label>
+          <input id="pub-title" placeholder="视频标题" maxlength="100" style="width:100%;padding:10px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);margin-top:4px"></div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text-dim)">标签 (逗号分隔)</label>
+          <input id="pub-tags" placeholder="AI,科技,教程" style="width:100%;padding:10px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);margin-top:4px"></div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;color:var(--text-dim)">目标平台</label>
+          <select id="pub-platform" style="width:100%;padding:10px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);margin-top:4px">
+            <option value="bilibili">📺 B站 (Bilibili)</option><option value="douyin">🎵 抖音 (Douyin)</option><option value="youtube">▶️ YouTube</option></select></div>
+        <button class="btn btn-primary" onclick="publishVideo()" style="width:100%;padding:12px">🚀 发布</button>
+      </div><div id="pub-result" style="margin-top:16px"></div></div>`;
+}
+
+async function publishVideo() {
+  const path = document.getElementById('pub-path').value.trim();
+  const title = document.getElementById('pub-title').value.trim();
+  if(!path||!title){showToast('请填写视频路径和标题','error');return;}
+  try {
+    const r = await fetch(`${API}/publish`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({video_path:path,title,description:'',tags:document.getElementById('pub-tags').value.split(',').map(s=>s.trim()).filter(Boolean),platform:document.getElementById('pub-platform').value})});
+    const d = await r.json();
+    document.getElementById('pub-result').innerHTML = `<div class="panel" style="padding:16px;border-left:3px solid var(--green)"><h3 style="color:var(--green-glow)">✅ 发布成功</h3><pre style="margin-top:8px;font-size:12px;color:var(--text-dim)">${JSON.stringify(d,null,2)}</pre></div>`;
+  } catch(e) { document.getElementById('pub-result').innerHTML = `<div style="color:var(--red)">发布失败: ${e.message}</div>`; }
+}
+
+// ---- 启动 ----
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

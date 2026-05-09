@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "saved_at": 1778337425.0079458,
+  "counters": {
+    "projects_created": 0,
+    "projects_completed": 0,
+    "total_video_seconds": 0.0,
+    "llm_calls": 0,
+    "llm_tokens": 0,
+    "tts_chars": 0,
+    "errors": 0
+  },
+  "render_times": [],
+  "llm_by_provider": {},
+  "duration_buckets": {},
+  "time_series": [],
+  "error_details": []
+}

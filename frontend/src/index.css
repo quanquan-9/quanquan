@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#0a0a0f] text-[#e8e8f0] antialiased;
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-[#181825] border border-[#252540] rounded-xl p-6 transition-all;
+  }
+  .card:hover {
+    @apply border-[#3a3a60] shadow-lg -translate-y-0.5;
+  }
+  .btn-primary {
+    @apply bg-[#7c3aed] text-white px-4 py-2 rounded-lg font-semibold
+           hover:bg-[#8b5cf6] hover:shadow-[0_0_16px_rgba(124,58,237,0.3)]
+           transition-all duration-200;
+  }
+  .btn-ghost {
+    @apply text-[#8888aa] border border-[#252540] px-4 py-2 rounded-lg
+           hover:border-[#3a3a60] hover:text-[#e8e8f0] transition-all;
+  }
+}

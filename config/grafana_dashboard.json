@@ -1,0 +1,130 @@
+# Grafana Dashboard Configuration for quanquan
+# Import this JSON into Grafana to get pre-built monitoring panels
+
+apiVersion: 1
+
+providers:
+  - name: 'quanquan'
+    orgId: 1
+    folder: 'quanquan'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true
+
+---
+# Dashboard JSON (generated)
+# Paste below into Grafana → Dashboards → Import
+{
+  "dashboard": {
+    "title": "quanquan 全自动剪辑 — 监控面板",
+    "uid": "quanquan-v2",
+    "timezone": "browser",
+    "editable": true,
+    "panels": [
+      {
+        "id": 1,
+        "title": "实时吞吐量",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {"expr": "rate(quanquan_projects_created_total[5m])", "legendFormat": "创建/分钟"},
+          {"expr": "rate(quanquan_projects_completed_total[5m])", "legendFormat": "完成/分钟"}
+        ],
+        "yaxes": [{"format": "short"}]
+      },
+      {
+        "id": 2,
+        "title": "队列积压",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 0, "w": 4, "h": 4},
+        "targets": [
+          {"expr": "quanquan_queue_depth", "legendFormat": "排队"}
+        ],
+        "color": {"mode": "thresholds"},
+        "thresholds": [
+          {"color": "green", "value": null},
+          {"color": "yellow", "value": 5},
+          {"color": "red", "value": 10}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "活跃项目数",
+        "type": "stat",
+        "gridPos": {"x": 16, "y": 0, "w": 4, "h": 4},
+        "targets": [
+          {"expr": "quanquan_active_projects", "legendFormat": "活跃"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "GPU 利用率",
+        "type": "gauge",
+        "gridPos": {"x": 20, "y": 0, "w": 4, "h": 4},
+        "targets": [
+          {"expr": "quanquan_gpu_utilization * 100", "legendFormat": "GPU%"}
+        ],
+        "max": 100,
+        "thresholds": [
+          {"color": "green", "value": null},
+          {"color": "yellow", "value": 70},
+          {"color": "red", "value": 90}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Agent 响应延迟 (P50/P99)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {"expr": "histogram_quantile(0.50, rate(quanquan_task_duration_seconds_bucket[5m]))", "legendFormat": "P50"},
+          {"expr": "histogram_quantile(0.99, rate(quanquan_task_duration_seconds_bucket[5m]))", "legendFormat": "P99"}
+        ],
+        "yaxes": [{"format": "s"}]
+      },
+      {
+        "id": 6,
+        "title": "QC 通过率",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 8, "w": 6, "h": 8},
+        "targets": [
+          {"expr": "quanquan_first_pass_yield * 100", "legendFormat": "一次成优率%"}
+        ],
+        "yaxes": [{"min": 0, "max": 100}],
+        "thresholds": [
+          {"color": "red", "value": null},
+          {"color": "yellow", "value": 60},
+          {"color": "green", "value": 80}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "缺陷趋势",
+        "type": "graph",
+        "gridPos": {"x": 18, "y": 8, "w": 6, "h": 8},
+        "targets": [
+          {"expr": "rate(quanquan_qc_fatal_total[1h])", "legendFormat": "致命"},
+          {"expr": "rate(quanquan_qc_major_total[1h])", "legendFormat": "严重"},
+          {"expr": "rate(quanquan_qc_minor_total[1h])", "legendFormat": "轻微"}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "系统事件日志",
+        "type": "logs",
+        "gridPos": {"x": 0, "y": 16, "w": 24, "h": 8},
+        "targets": [
+          {"expr": "{job=\"quanquan\"}", "legendFormat": "{{level}}"}
+        ]
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "refresh": "5s",
+    "tags": ["quanquan", "ai-video"],
+    "schemaVersion": 36
+  }
+}

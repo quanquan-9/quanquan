@@ -1,0 +1,498 @@
+数据库表初始化完成
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['sadfsfasf']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for 'sadfsfasf...' (180s, style=['专业解说'])
+All LLM providers failed: 
+All LLM providers failed: 
+All LLM providers failed: 
+Refinement round 1: LLM returned empty, keeping current
+All LLM providers failed: 
+All LLM providers failed: 
+Refinement round 2: LLM returned empty, keeping current
+All LLM providers failed: 
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for 'sadfsfasf' (0 scenes)
+All LLM providers failed: 
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: 
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: 
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: 
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+[quan_20260509120949_anonymou] No scenes found in script
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509120949_anonymou done — 8/8 OK in 0.0s
+[Director] Stored 8 artifacts for quan_20260509120949_anonymou
+[Director] reporting → idle
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for 'sadfsafsadf...' (180s, style=['专业解说'])
+All LLM providers failed: 
+All LLM providers failed: 
+All LLM providers failed: 
+Refinement round 1: LLM returned empty, keeping current
+All LLM providers failed: 
+All LLM providers failed: 
+Refinement round 2: LLM returned empty, keeping current
+All LLM providers failed: 
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for 'sadfsafsadf' (0 scenes)
+All LLM providers failed: 
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: 
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: 
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: 
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+[quan_20260509121005_anonymou] No scenes found in script
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509121005_anonymou done — 8/8 OK in 0.0s
+[Director] Stored 8 artifacts for quan_20260509121005_anonymou
+[Director] reporting → idle
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for '测试视频项目...' (60s, style=['专业解说'])
+All LLM providers failed: 
+All LLM providers failed: 
+All LLM providers failed: 
+Refinement round 1: LLM returned empty, keeping current
+All LLM providers failed: 
+All LLM providers failed: 
+Refinement round 2: LLM returned empty, keeping current
+All LLM providers failed: 
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for '测试视频项目' (0 scenes)
+All LLM providers failed: 
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: 
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: 
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: 
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+[quan_20260509121116_anonymou] No scenes found in script
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509121116_anonymou done — 8/8 OK in 0.0s
+[Director] Stored 8 artifacts for quan_20260509121116_anonymou
+[Director] reporting → idle
+数据库表初始化完成
+ContextBus connected: memory
+ContextBus connected: memory
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['tech', 'Groq', 'AI驱动视频测试']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for 'Groq AI驱动视频测试...' (60s, style=['tech'])
+LLM: 2 providers loaded → ['gemini', 'groq']
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+[Director] CRASH in state monitoring: SUCCESS
+Traceback (most recent call last):
+  File "/data/quanquan/core/director.py", line 69, in run
+    await handler()
+  File "/data/quanquan/core/director.py", line 362, in _monitoring
+    all_finished = all(
+  File "/data/quanquan/core/director.py", line 363, in <genexpr>
+    s in (NodeStatus.SUCCESS, NodeStatus.FAILED)
+  File "/usr/lib/python3.8/enum.py", line 384, in __getattr__
+    raise AttributeError(name) from None
+AttributeError: SUCCESS
+
+LLM groq failed: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (26s); groq: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+No refinement needed after round 1
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] Scriptwriter (script_gen) FAILED: SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for '未命名项目' (0 scenes)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) FAILED: SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] BGM (bgm) FAILED: SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) FAILED: SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] Styling (styling) FAILED: SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) FAILED: SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) FAILED: SUCCESS
+[Director] Dispatching VideoRender (render)
+[quan_20260509133542_anonymou] No scenes found in script
+[Director] VideoRender (render) FAILED: SUCCESS
+数据库表初始化完成
+ContextBus connected: memory
+ContextBus connected: memory
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['cinematic', 'Groq火力全开终极测试']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for 'Groq火力全开终极测试...' (60s, style=['cinematic'])
+LLM: 2 providers loaded → ['gemini', 'groq']
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+LLM groq failed: Client error '413 Payload Too Large' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (25s); groq: Client error '413 Payload Too Large' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+Duration adjusted: 0.0s → 60s (scale factor: 1.000)
+Refinement round 1 complete
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+No refinement needed after round 2
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+Coherence check failed: 'id'
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for 'AI 自动生成演示视频' (8 scenes)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+TTS synthesized: 186 chars → /data/quanquan/output/_v_quan_20260509133800_anonymou.mp3
+数据库表初始化完成
+ContextBus connected: memory
+ContextBus connected: memory
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['cinematic', '终极Groq测试']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for '终极Groq测试...' (30s, style=['cinematic'])
+LLM: 2 providers loaded → ['gemini', 'groq']
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+LLM groq failed: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (27s); groq: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+No refinement needed after round 1
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for '终极Groq测试' (4 scenes)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+TTS synthesized: 160 chars → /data/quanquan/output/_v_quan_20260509134117_anonymou.mp3
+[Director] VideoRender timeout for quan_20260509134117_anonymou
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509134117_anonymou done — 8/8 OK in 62.4s
+[Director] Stored 8 artifacts for quan_20260509134117_anonymou
+[Director] reporting → idle
+数据库表初始化完成
+ContextBus connected: memory
+ContextBus connected: memory
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['dsfgdgdf']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for 'dsfgdgdf...' (180s, style=['专业解说'])
+LLM: 2 providers loaded → ['gemini', 'groq']
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+LLM groq failed: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (26s); groq: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+No refinement needed after round 1
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for '人工智能的未来：机器人和人工智能的融合' (6 scenes)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (26s); groq: cooling down (29s)
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+TTS synthesized: 406 chars → /data/quanquan/output/_v_quan_20260509134533_anonymou.mp3
+[Director] VideoRender timeout for quan_20260509134533_anonymou
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509134533_anonymou done — 8/8 OK in 63.2s
+[Director] Stored 8 artifacts for quan_20260509134533_anonymou
+[Director] reporting → idle
+数据库表初始化完成
+ContextBus connected: memory
+ContextBus connected: memory
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['产物测试']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for '产物测试...' (30s, style=['专业解说'])
+LLM: 2 providers loaded → ['gemini', 'groq']
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+LLM groq failed: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (25s); groq: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+Duration adjusted: 0.0s → 30s (scale factor: 1.000)
+Refinement round 1 complete
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+No refinement needed after round 2
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+Coherence check failed: 'id'
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for 'AI 自动生成演示视频' (8 scenes)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (25s); groq: cooling down (29s)
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+TTS synthesized: 186 chars → /data/quanquan/output/_v_quan_20260509134909_anonymou.mp3
+[Director] VideoRender timeout for quan_20260509134909_anonymou
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509134909_anonymou done — 8/8 OK in 64.2s
+[Director] Stored 8 artifacts for quan_20260509134909_anonymou
+[Director] reporting → idle
+数据库表初始化完成
+ContextBus connected: memory
+ContextBus connected: memory
+[Director] Started — v3.0
+[WSBroadcaster] ✅ 自动进度推送已启动 (每2秒)
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[PreferenceDecay] 初始化完成 λ=8.91e-08 half_life=90d
+[PreferenceDecay] user=anonymous 冷启动 5类 keywords=['产物测试v2']
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for '产物测试v2...' (30s, style=['专业解说'])
+LLM: 2 providers loaded → ['gemini', 'groq']
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+LLM groq failed: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (27s); groq: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+No refinement needed after round 1
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for '产物测试v2：精准的质量保证' (4 scenes)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (27s); groq: cooling down (29s)
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+TTS synthesized: 146 chars → /data/quanquan/output/_v_quan_20260509135227_anonymou.mp3
+[Director] VideoRender timeout
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509135227_anonymou done — 8/8 OK in 32.4s
+[Director] Stored 8 artifacts for quan_20260509135227_anonymou
+[Director] reporting → idle
+[Director] idle → analyzing
+[Director] analyzing → retrieving
+[Director] Memory profile loaded for anonymous: {'voice_id': 'neutral_male_01', 'filter': 'neutral', 'transition': 'smooth_cut', 'bgm_genre': 'generic_pop', 'pace': 'medium'}
+[Director] retrieving → planning
+[Director] planning → dispatching
+[Director] dispatching → monitoring
+[Director] Dispatching Scriptwriter (script_gen)
+ScriptwriterAgent 3.0: generating script for 'casdfsafsadf...' (180s, style=['portrait_soft'])
+LLM gemini failed: Client error '429 Too Many Requests' for url 'https://generativelanguage.googleapis.com/v1beta/opena
+LLM groq failed: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+All LLM providers failed: gemini: cooling down (24s); groq: Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'
+For m
+Duration adjusted: 0.0s → 180s (scale factor: 1.000)
+Refinement round 1 complete
+All LLM providers failed: gemini: cooling down (24s); groq: cooling down (29s)
+No refinement needed after round 2
+All LLM providers failed: gemini: cooling down (24s); groq: cooling down (29s)
+Coherence check failed: 'id'
+[Director] Scriptwriter (script_gen) → SUCCESS
+[Director] Dispatching Storyboard (storyboard)
+Storyboard 3.0: initial plan for 'AI 自动生成演示视频' (8 scenes)
+All LLM providers failed: gemini: cooling down (24s); groq: cooling down (29s)
+Initial plan returned empty — returning fallback
+[Director] Storyboard (storyboard) → SUCCESS
+[Director] Dispatching BGM (bgm)
+All LLM providers failed: gemini: cooling down (24s); groq: cooling down (29s)
+[Director] BGM (bgm) → SUCCESS
+[Director] Dispatching Voiceover (voiceover)
+All LLM providers failed: gemini: cooling down (24s); groq: cooling down (29s)
+[Director] Voiceover (voiceover) → SUCCESS
+[Director] Dispatching Styling (styling)
+All LLM providers failed: gemini: cooling down (24s); groq: cooling down (29s)
+[Director] Styling (styling) → SUCCESS
+[Director] Dispatching QC (qc)
+[Director] QC (qc) → SUCCESS
+[Director] Dispatching Delivery (delivery)
+[Director] Delivery (delivery) → SUCCESS
+[Director] Dispatching VideoRender (render)
+TTS synthesized: 186 chars → /data/quanquan/output/_v_quan_20260509135337_anonymou.mp3
+[Director] VideoRender timeout
+[Director] VideoRender (render) → SUCCESS
+[Director] monitoring → finalizing
+[Director] finalizing → reporting
+[Director] Project quan_20260509135337_anonymou done — 8/8 OK in 35.5s
+[Director] Stored 8 artifacts for quan_20260509135337_anonymou
+[Director] reporting → idle

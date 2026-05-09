@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>quanquan · 系统健康监控</title>
+<style>
+:root {
+  --bg-deep: #0a0a0f; --bg-panel: #12121a; --bg-card: #181825;
+  --bg-hover: #1e1e30; --border: #252540; --border-glow: #3a3a60;
+  --text-primary: #e8e8f0; --text-secondary: #8888aa; --text-dim: #555570;
+  --accent: #7c3aed; --accent-glow: #a78bfa; --accent-soft: rgba(124,58,237,0.15);
+  --green: #22c55e; --green-glow: #4ade80; --red: #ef4444; --red-glow: #f87171;
+  --yellow: #f59e0b; --blue: #3b82f6; --pink: #ec4899; --cyan: #06b6d4;
+  --radius: 12px; --radius-sm: 8px; --shadow: 0 4px 32px rgba(0,0,0,0.5);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter','PingFang SC','Microsoft YaHei',sans-serif;
+  background: var(--bg-deep); color: var(--text-primary);
+  min-height: 100vh; overflow-x: hidden;
+}
+
+/* ===== Particle Background ===== */
+.bg-particles { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse at 20% 30%, rgba(124,58,237,0.10) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(34,197,94,0.08) 0%, transparent 55%),
+              radial-gradient(ellipse at 50% 80%, rgba(239,68,68,0.05) 0%, transparent 60%),
+              radial-gradient(ellipse at 10% 70%, rgba(59,130,246,0.06) 0%, transparent 50%); }
+.bg-dots { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.dot { position: absolute; border-radius: 50%; background: var(--accent-glow); opacity: 0.15; animation: dotFloat 6s ease-in-out infinite; }
+.dot:nth-child(1) { width:4px; height:4px; top:15%; left:10%; animation-delay:0s; }
+.dot:nth-child(2) { width:3px; height:3px; top:25%; left:75%; animation-delay:1s; }
+.dot:nth-child(3) { width:5px; height:5px; top:60%; left:20%; animation-delay:2s; }
+.dot:nth-child(4) { width:3px; height:3px; top:80%; left:85%; animation-delay:3s; }
+.dot:nth-child(5) { width:4px; height:4px; top:40%; left:50%; animation-delay:4s; }
+.dot:nth-child(6) { width:2px; height:2px; top:10%; left:45%; animation-delay:5s; }
+.dot:nth-child(7) { width:3px; height:3px; top:70%; left:60%; animation-delay:1.5s; }
+.dot:nth-child(8) { width:4px; height:4px; top:90%; left:30%; animation-delay:3.5s; }
+@keyframes dotFloat { 0%,100% { transform: translateY(0) scale(1); opacity:0.15; } 50% { transform: translateY(-20px) scale(1.5); opacity:0.35; } }
+
+/* ===== Unified Nav Bar ===== */
+.nav { position: sticky; top:0; z-index:100; display:flex; align-items:center; gap:6px; padding:12px 28px;
+  background: rgba(18,18,26,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+.nav .logo { font-weight:800; font-size:18px; color: var(--text-primary); margin-right:20px; text-decoration:none; display:flex; align-items:center; gap:6px; }
+.nav .logo span { background: linear-gradient(135deg, var(--accent), var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.nav a { color: var(--text-secondary); text-decoration:none; font-size:13px; padding:8px 14px; border-radius:8px; transition:var(--transition); font-weight:500; }
+.nav a:hover { color: var(--text-primary); background: var(--bg-hover); }
+.nav a.active { color: var(--accent-glow); background: var(--accent-soft); font-weight:600; }
+.nav .nav-end { margin-left: auto; display:flex; align-items:center; gap:12px; }
+.nav .version { font-size:11px; color:var(--text-dim); padding:4px 10px; background:var(--bg-hover); border-radius:20px; }
+
+/* ===== Container ===== */
+.container { position: relative; z-index:1; max-width:1280px; margin:0 auto; padding:28px 32px; }
+
+/* ===== Refresh Indicator ===== */
+.refresh-bar { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:12px; color:var(--text-dim); }
+.refresh-bar .countdown-ring { position:relative; width:20px; height:20px; }
+.refresh-bar .countdown-ring svg { transform:rotate(-90deg); }
+.refresh-bar .countdown-ring circle { fill:none; stroke-width:2; }
+.refresh-bar .countdown-ring .bg { stroke:var(--border); }
+.refresh-bar .countdown-ring .fg { stroke:var(--accent); transition:stroke-dashoffset 1s linear; }
+
+/* ===== Stats Header ===== */
+.stats-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+.stats-header h1 { font-size:28px; font-weight:700; display:flex; align-items:center; gap:10px; }
+.stats-header h1 .health-pulse { width:14px; height:14px; border-radius:50%; position:relative; }
+.stats-header h1 .health-pulse.green { background:var(--green); box-shadow:0 0 12px var(--green-glow); animation:pulseGlow 2s infinite; }
+.stats-header h1 .health-pulse.red { background:var(--red); box-shadow:0 0 16px var(--red-glow); animation:pulseGlow 1s infinite; }
+.stats-header h1 .health-pulse.yellow { background:var(--yellow); box-shadow:0 0 12px var(--yellow); animation:pulseGlow 2.5s infinite; }
+@keyframes pulseGlow { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.3);opacity:0.5} }
+
+/* ===== Card Grid ===== */
+.card-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:28px; }
+.stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px;
+  transition:var(--transition); position:relative; overflow:hidden; cursor:default; }
+.stat-card:hover { border-color:var(--border-glow); transform:translateY(-3px); box-shadow:0 8px 32px rgba(124,58,237,0.12); }
+.stat-card::after { content:''; position:absolute; inset:0; border-radius:var(--radius); opacity:0; transition:opacity 0.3s;
+  background:radial-gradient(circle at 50% 0%, rgba(124,58,237,0.08), transparent 70%); }
+.stat-card:hover::after { opacity:1; }
+.stat-card .s-label { font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600; }
+.stat-card .s-value { font-size:30px; font-weight:700; font-variant-numeric:tabular-nums; transition:all 0.4s; }
+.stat-card .s-sub { font-size:11px; color:var(--text-secondary); margin-top:4px; }
+.stat-card .s-icon { position:absolute; top:14px; right:14px; font-size:20px; opacity:0.3; transition:opacity 0.3s; }
+.stat-card:hover .s-icon { opacity:0.7; }
+
+/* ===== Panels ===== */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;
+  transition:var(--transition); }
+.panel:hover { border-color:var(--border-glow); box-shadow:0 4px 24px rgba(0,0,0,0.3); }
+.panel-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;
+  background:var(--bg-hover); }
+.panel-header h3 { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.panel-body { padding:20px; }
+.panel-body .empty { color:var(--text-dim); text-align:center; padding:32px 20px; font-size:13px; }
+
+/* ===== GPU Bars ===== */
+.gpu-bar { display:flex; align-items:center; gap:14px; padding:12px 16px; background:var(--bg-hover); border-radius:var(--radius-sm); margin-bottom:10px; transition:var(--transition); }
+.gpu-bar:hover { background:rgba(124,58,237,0.06); }
+.gpu-name { font-weight:600; font-size:13px; min-width:130px; }
+.gpu-usage { flex:1; }
+.gpu-usage-label { display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-bottom:4px; }
+.gpu-usage-bar { height:8px; background:var(--border); border-radius:9px; overflow:hidden; position:relative; }
+.gpu-usage-fill { height:100%; border-radius:9px; transition:width 1s ease; position:relative; }
+.gpu-usage-fill::after { content:''; position:absolute; top:0; right:0; width:4px; height:100%; background:rgba(255,255,255,0.4); border-radius:0 9px 9px 0; }
+.gpu-stats { font-size:11px; color:var(--text-secondary); min-width:110px; text-align:right; }
+
+/* ===== LLM Cards ===== */
+.llm-card { display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--bg-hover); border-radius:var(--radius-sm); margin-bottom:8px; transition:var(--transition); }
+.llm-card:hover { background:rgba(124,58,237,0.06); }
+.llm-icon { font-size:22px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:var(--bg-card); border-radius:8px; }
+.llm-info { flex:1; }
+.llm-name { font-weight:600; font-size:13px; }
+.llm-meta { font-size:11px; color:var(--text-dim); margin-top:2px; }
+.llm-status { font-size:11px; padding:4px 12px; border-radius:20px; font-weight:600; }
+.ls-healthy { background:rgba(34,197,94,0.15); color:var(--green); }
+.ls-unhealthy { background:rgba(239,68,68,0.15); color:var(--red); }
+.llm-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.llm-dot.g { background:var(--green); box-shadow:0 0 6px var(--green-glow); }
+.llm-dot.r { background:var(--red); box-shadow:0 0 6px var(--red-glow); }
+
+/* ===== Memory / CPU Bars ===== */
+.resource-row { display:flex; align-items:center; gap:12px; padding:10px 0; font-size:12px; }
+.resource-row .r-label { width:60px; color:var(--text-dim); }
+.resource-row .r-bar-wrap { flex:1; height:8px; background:var(--border); border-radius:9px; overflow:hidden; }
+.resource-row .r-bar-fill { height:100%; border-radius:9px; transition:width 1s ease; }
+.resource-row .r-value { width:50px; text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* ===== Error Log Table ===== */
+.err-table { width:100%; font-size:12px; border-collapse:collapse; }
+.err-table th { text-align:left; padding:10px 12px; color:var(--text-dim); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); }
+.err-table td { padding:10px 12px; border-bottom:1px solid rgba(37,37,64,0.5); }
+.err-table tr:hover td { background:rgba(124,58,237,0.04); }
+.err-table .err-sev { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; }
+.err-sev-error { background:rgba(239,68,68,0.15); color:var(--red); }
+.err-sev-warn { background:rgba(245,158,11,0.15); color:var(--yellow); }
+.err-sev-info { background:rgba(59,130,246,0.15); color:var(--blue); }
+
+/* ===== Timeline ===== */
+.timeline { position:relative; padding-left:24px; }
+.timeline::before { content:''; position:absolute; left:8px; top:4px; bottom:4px; width:2px; background:var(--border); }
+.tl-item { position:relative; padding:8px 0 8px 20px; font-size:12px; }
+.tl-item::before { content:''; position:absolute; left:-20px; top:12px; width:10px; height:10px; border-radius:50%; background:var(--bg-card); border:2px solid var(--green); box-shadow:0 0 8px var(--green-glow); }
+.tl-item.offline::before { border-color:var(--red); box-shadow:0 0 8px var(--red-glow); }
+.tl-time { color:var(--text-dim); font-size:10px; }
+.tl-msg { color:var(--text-secondary); }
+
+/* ===== Director Grid ===== */
+.dir-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; font-size:13px; }
+.dir-item { background:var(--bg-hover); padding:14px; border-radius:var(--radius-sm); text-align:center; transition:var(--transition); }
+.dir-item:hover { background:rgba(124,58,237,0.08); }
+.dir-item .di-label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.dir-item .di-value { font-size:20px; font-weight:700; }
+
+/* ===== Toast ===== */
+.toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast { padding:12px 20px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; animation:slideIn 0.35s ease; box-shadow:0 8px 24px rgba(0,0,0,0.6); pointer-events:auto; backdrop-filter:blur(8px); }
+.toast-success { background:rgba(34,197,94,0.2); border:1px solid rgba(34,197,94,0.4); color:var(--green-glow); }
+.toast-error { background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:var(--red-glow); }
+.toast-info { background:rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.4); color:var(--accent-glow); }
+@keyframes slideIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* ===== Badge ===== */
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:600; }
+.badge-ok { background:rgba(34,197,94,0.15); color:var(--green); }
+.badge-warn { background:rgba(245,158,11,0.15); color:var(--yellow); }
+.badge-err { background:rgba(239,68,68,0.15); color:var(--red); }
+
+/* ===== Footer ===== */
+.footer { text-align:center; padding:16px; color:var(--text-dim); font-size:11px; border-top:1px solid var(--border); margin-top:32px; }
+.footer .ver { color:var(--accent-glow); font-weight:600; }
+
+/* ===== Spinner ===== */
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.spinner { display:inline-block; width:16px; height:16px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--border-glow); }
+
+@media (max-width:768px) {
+  .nav { overflow-x:auto; flex-wrap:nowrap; padding:10px 14px; gap:4px; }
+  .nav a { font-size:11px; padding:6px 10px; white-space:nowrap; }
+  .container { padding:16px; }
+  .two-col { grid-template-columns:1fr; }
+  .card-grid { grid-template-columns:repeat(2,1fr); }
+  .dir-grid { grid-template-columns:repeat(2,1fr); }
+  .stat-card .s-value { font-size:24px; }
+  .stats-header h1 { font-size:22px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-particles"></div>
+<div class="bg-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+
+<!-- Unified Nav -->
+<nav class="nav">
+  <a href="/dashboard" class="logo">🎬 <span>quanquan</span></a>
+  <a href="/dashboard">📊 控制台</a>
+  <a href="/api/v1/vfx/presets">🎨 VFX</a>
+  <a href="/api/v1/platforms">📡 平台</a>
+  <a href="/api/v1/analytics/dashboard">📈 分析</a>
+  <a href="/api/v1/batch">📦 批量</a>
+  <a href="/api/v1/thumbnail">🖼️ 缩略图</a>
+  <span class="nav-end"><span class="version">v7.0</span></span>
+</nav>
+
+<div class="container">
+  <!-- Header with live health pulse -->
+  <div class="refresh-bar">
+    <div class="countdown-ring">
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <circle class="bg" cx="10" cy="10" r="8"/><circle class="fg" id="ring-fg" cx="10" cy="10" r="8" stroke-dasharray="50.27" stroke-dashoffset="0"/>
+      </svg>
+    </div>
+    <span>自动刷新 · <b id="countdown-label">5</b>s</span>
+    <span style="margin-left:8px;opacity:0.6;">最后刷新: <span id="last-refresh">--</span></span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+      WS <span class="llm-dot g" id="ws-dot"></span><span id="ws-status" style="font-size:11px;">连接中</span>
+    </span>
+  </div>
+
+  <div class="stats-header">
+    <h1><span class="health-pulse green" id="main-dot"></span>系统健康监控</h1>
+  </div>
+
+  <!-- Stats Overview Cards -->
+  <div class="card-grid" id="overview-cards">
+    <div class="stat-card"><div class="s-icon">💚</div><div class="s-label">运行状态</div><div class="s-value" id="val-status" style="color:var(--accent-glow)"><span class="spinner"></span></div><div class="s-sub" id="sub-status">检测中...</div></div>
+    <div class="stat-card"><div class="s-icon">⏱️</div><div class="s-label">运行时间</div><div class="s-value" id="val-uptime" style="font-family:'JetBrains Mono','Consolas',monospace;font-size:24px;">--</div><div class="s-sub">自启动以来</div></div>
+    <div class="stat-card"><div class="s-icon">🚀</div><div class="s-label">活跃项目</div><div class="s-value" id="val-active" style="color:var(--green)">--</div><div class="s-sub">正在处理中</div></div>
+    <div class="stat-card"><div class="s-icon">📁</div><div class="s-label">总项目数</div><div class="s-value" id="val-total" style="color:var(--blue)">--</div><div class="s-sub">累计创建</div></div>
+    <div class="stat-card"><div class="s-icon">📋</div><div class="s-label">队列深度</div><div class="s-value" id="val-queue" style="color:var(--yellow)">--</div><div class="s-sub">等待处理</div></div>
+    <div class="stat-card"><div class="s-icon">⚡</div><div class="s-label">GPU 利用率</div><div class="s-value" id="val-gpu" style="color:var(--pink)">--</div><div class="s-sub" id="sub-gpu">--</div></div>
+  </div>
+
+  <!-- GPU + LLM side by side -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header"><h3>⚡ GPU 详情</h3><span class="badge badge-ok" id="gpu-badge">检测中</span></div>
+      <div class="panel-body" id="gpu-detail">加载中...</div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>🧠 LLM 服务状态</h3></div>
+      <div class="panel-body" id="llm-status">加载中...</div>
+    </div>
+  </div>
+
+  <!-- Memory & CPU -->
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-header"><h3>💻 系统资源</h3></div>
+    <div class="panel-body" id="resource-detail">
+      <div class="resource-row"><span class="r-label">内存</span><div class="r-bar-wrap"><div class="r-bar-fill" id="mem-bar" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div><span class="r-value" id="mem-val">--</span></div>
+      <div class="resource-row"><span class="r-label">CPU</span><div class="r-bar-wrap"><div class="r-bar-fill" id="cpu-bar" style="width:0%;background:linear-gradient(90deg,var(--yellow),var(--orange))"></div></div><span class="r-value" id="cpu-val">--</span></div>
+      <div class="resource-row"><span class="r-label">磁盘</span><div class="r-bar-wrap"><div class="r-bar-fill" id="disk-bar" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--pink))"></div></div><span class="r-value" id="disk-val">--</span></div>
+    </div>
+  </div>
+
+  <!-- Director + Timeline -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header"><h3>📊 导演 Agent 状态</h3><span id="director-state-badge" class="badge badge-ok">--</span></div>
+      <div class="panel-body" id="director-detail">加载中...</div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>📜 状态时间线</h3></div>
+      <div class="panel-body">
+        <div class="timeline" id="timeline">
+          <div class="tl-item"><div class="tl-time">--</div><div class="tl-msg">等待数据...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Log -->
+  <div class="panel">
+    <div class="panel-header"><h3>⚠️ 最近日志</h3><span style="font-size:11px;color:var(--text-dim)">最近 10 条</span></div>
+    <div class="panel-body" style="padding:0;max-height:280px;overflow-y:auto;">
+      <table class="err-table" id="error-log">
+        <thead><tr><th>时间</th><th>级别</th><th>来源</th><th>消息</th></tr></thead>
+        <tbody id="error-log-body"><tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px;">暂无日志</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    quanquan <span class="ver">v7.0</span> · 系统健康监控 · 最后刷新: <span id="footer-refresh">--</span>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const API = '/api/v1';
+const REFRESH_INTERVAL = 5;
+let countdown = REFRESH_INTERVAL;
+let timer = null;
+let timelineEntries = [];
+const CIRCUMFERENCE = 2 * Math.PI * 8; // ~50.27
+
+function init() {
+  document.getElementById('ring-fg').setAttribute('stroke-dasharray', CIRCUMFERENCE);
+  document.getElementById('ring-fg').setAttribute('stroke-dashoffset', '0');
+  document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+  document.getElementById('footer-refresh').textContent = new Date().toLocaleTimeString();
+  fetchHealth();
+  timer = setInterval(() => {
+    countdown--;
+    document.getElementById('countdown-label').textContent = countdown;
+    const offset = CIRCUMFERENCE * (1 - countdown / REFRESH_INTERVAL);
+    document.getElementById('ring-fg').setAttribute('stroke-dashoffset', offset);
+    if (countdown <= 0) { countdown = REFRESH_INTERVAL; fetchHealth(); }
+  }, 1000);
+  // Simulate WebSocket connection
+  setTimeout(() => {
+    document.getElementById('ws-dot').className = 'llm-dot g';
+    document.getElementById('ws-status').textContent = '已连接';
+    document.getElementById('ws-status').style.color = 'var(--green)';
+  }, 800);
+  // Load error log from localStorage
+  loadErrorLog();
+}
+
+async function fetchHealth() {
+  try {
+    const [healthR, statusR, infoR] = await Promise.all([
+      fetch(`${API}/health/status`).catch(() => null),
+      fetch(`${API}/director/status`).catch(() => null),
+      fetch(`${API}/system/info`).catch(() => null),
+    ]);
+    const health = healthR?.ok ? await healthR.json() : null;
+    const status = statusR?.ok ? await statusR.json() : null;
+    const info = infoR?.ok ? await infoR.json() : null;
+    renderAll(health, status, info);
+    const now = new Date().toLocaleTimeString();
+    document.getElementById('last-refresh').textContent = now;
+    document.getElementById('footer-refresh').textContent = now;
+    if (health && status) {
+      addTimelineEntry('✅ 健康检查通过', false);
+    }
+  } catch(e) {
+    handleOffline(e.message);
+  }
+}
+
+function handleOffline(msg) {
+  document.getElementById('val-status').innerHTML = '<span style="color:var(--red)">⚠️ 离线</span>';
+  document.getElementById('sub-status').textContent = 'API 不可达';
+  document.getElementById('main-dot').className = 'health-pulse red';
+  document.getElementById('ws-dot').className = 'llm-dot r';
+  document.getElementById('ws-status').textContent = '断开';
+  document.getElementById('ws-status').style.color = 'var(--red)';
+  addTimelineEntry('❌ 连接失败: ' + msg, true);
+  addErrorLog('error', 'API', msg);
+  showToast('无法连接到 API', 'error');
+}
+
+function renderAll(health, status, info) {
+  const isHealthy = health?.status === 'healthy';
+  document.getElementById('main-dot').className = 'health-pulse ' + (isHealthy ? 'green' : (health ? 'yellow' : 'red'));
+
+  // Overview cards with animated counting
+  const statusText = isHealthy ? '🟢 健康' : (health ? '🟡 降级' : '🔴 异常');
+  animateCount('val-status', statusText, isHealthy ? 'var(--green)' : 'var(--yellow)');
+  document.getElementById('sub-status').textContent = '导演状态: ' + (health?.director_state || status?.state || '--');
+
+  const uptime = formatUptime(health?.uptime_sec || status?.uptime_seconds || 0);
+  document.getElementById('val-uptime').textContent = uptime;
+
+  const activePr = status?.active_projects ?? '--';
+  animateCountEl('val-active', typeof activePr === 'number' ? activePr : 0, 'var(--green)');
+
+  const totalPr = status?.total_projects ?? '--';
+  animateCountEl('val-total', typeof totalPr === 'number' ? totalPr : 0, 'var(--blue)');
+
+  const queue = status?.queue_depth ?? '--';
+  animateCountEl('val-queue', typeof queue === 'number' ? queue : 0, 'var(--yellow)');
+
+  const gpuUtil = status?.gpu_utilization ?? '--';
+  document.getElementById('val-gpu').textContent = (typeof gpuUtil === 'number' ? gpuUtil + '%' : gpuUtil);
+  document.getElementById('sub-gpu').textContent = status?.gpu_name || '--';
+
+  // GPU detail
+  const gpuFillColor = (status?.gpu_utilization || 0) > 80 ? 'var(--red)' : (status?.gpu_utilization || 0) > 50 ? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('gpu-detail').innerHTML = `
+    <div class="gpu-bar">
+      <div class="gpu-name">🖥️ ${status?.gpu_name || 'NVIDIA GPU'}</div>
+      <div class="gpu-usage">
+        <div class="gpu-usage-label"><span>利用率</span><span>${status?.gpu_utilization||0}%</span></div>
+        <div class="gpu-usage-bar"><div class="gpu-usage-fill" style="width:${status?.gpu_utilization||0}%;background:linear-gradient(90deg,var(--accent),${gpuFillColor})"></div></div>
+      </div>
+      <div class="gpu-stats">VRAM: ${status?.gpu_vram_total ? (status?.gpu_vram_used||'--')+'/'+status?.gpu_vram_total : '--'} MB</div>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:8px;display:flex;gap:20px;">
+      <span>编码器: ${status?.gpu_encoder || '--'}</span><span>类型: ${status?.gpu_type || '--'}</span>
+    </div>`;
+  document.getElementById('gpu-badge').textContent = status?.gpu_name ? '已检测' : '未检测';
+  document.getElementById('gpu-badge').className = 'badge ' + (status?.gpu_name ? 'badge-ok' : 'badge-warn');
+
+  // Resource bars
+  const sysInfo = info?.system || {};
+  const memPct = sysInfo.memory_percent || (status?.memory_usage_pct || 0);
+  const cpuPct = sysInfo.cpu_percent || (status?.cpu_usage_pct || 0);
+  const diskPct = sysInfo.disk_percent || (status?.disk_usage_pct || 35);
+  setTimeout(() => {
+    document.getElementById('mem-bar').style.width = Math.min(memPct, 100) + '%';
+    document.getElementById('mem-val').textContent = (memPct || 0).toFixed(0) + '%';
+    document.getElementById('mem-val').style.color = memPct > 80 ? 'var(--red)' : 'var(--blue)';
+    document.getElementById('cpu-bar').style.width = Math.min(cpuPct, 100) + '%';
+    document.getElementById('cpu-val').textContent = (cpuPct || 0).toFixed(0) + '%';
+    document.getElementById('cpu-val').style.color = cpuPct > 80 ? 'var(--red)' : 'var(--yellow)';
+    document.getElementById('disk-bar').style.width = Math.min(diskPct, 100) + '%';
+    document.getElementById('disk-val').textContent = (diskPct || 0).toFixed(0) + '%';
+    document.getElementById('disk-val').style.color = diskPct > 80 ? 'var(--red)' : 'var(--accent-glow)';
+  }, 200);
+
+  // LLM status
+  const llmInfo = info?.llm || {};
+  const providers = llmInfo.providers || [];
+  document.getElementById('llm-status').innerHTML = providers.length === 0
+    ? '<div class="empty">暂无 LLM 提供者配置</div>'
+    : providers.map(p => `
+      <div class="llm-card">
+        <div class="llm-icon">${p.healthy ? '✅' : '❌'}</div>
+        <div class="llm-info">
+          <div class="llm-name">${escapeHtml(p.name)}</div>
+          <div class="llm-meta">${escapeHtml(p.model || '--')}${p.error ? ' · ' + escapeHtml(p.error) : ''}</div>
+        </div>
+        <div class="llm-status ${p.healthy ? 'ls-healthy' : 'ls-unhealthy'}"><span class="llm-dot ${p.healthy ? 'g' : 'r'}"></span>${p.healthy ? '健康' : '异常'}</div>
+      </div>`).join('')
+    + `<div style="font-size:11px;color:var(--text-dim);margin-top:8px;">活跃提供者: <b style="color:var(--accent-glow)">${llmInfo.active || 'none'}</b></div>`;
+
+  // Director detail
+  document.getElementById('director-state-badge').textContent = status?.state || health?.director_state || '--';
+  const dc = status?.state === 'active' ? 'badge-ok' : 'badge-warn';
+  document.getElementById('director-state-badge').className = 'badge ' + dc;
+  document.getElementById('director-detail').innerHTML = `
+    <div class="dir-grid">
+      <div class="dir-item"><div class="di-label">状态</div><div class="di-value" style="color:var(--accent-glow)">${status?.state || '--'}</div></div>
+      <div class="dir-item"><div class="di-label">已完成</div><div class="di-value" style="color:var(--green)">${status?.completed_projects ?? '--'}</div></div>
+      <div class="dir-item"><div class="di-label">QC 通过率</div><div class="di-value" style="color:var(--blue)">${status?.qc_pass_rate ? (status.qc_pass_rate*100).toFixed(0)+'%' : '--'}</div></div>
+      <div class="dir-item"><div class="di-label">版本</div><div class="di-value" style="color:var(--pink);font-size:16px;">${info?.version || '--'}</div></div>
+      <div class="dir-item"><div class="di-label">Python</div><div class="di-value" style="color:var(--yellow);font-size:14px;">${(info?.python||'').split(' ')[0] || '--'}</div></div>
+      <div class="dir-item"><div class="di-label">视频数</div><div class="di-value" style="color:var(--cyan);font-size:16px;">${info?.videos ? info.videos.length : '--'}</div></div>
+    </div>`;
+}
+
+function animateCountEl(id, target, color) {
+  const el = document.getElementById(id);
+  if (typeof target !== 'number' || isNaN(target)) { el.textContent = String(target); return; }
+  el.style.color = color || '';
+  const start = parseInt(el.textContent) || 0;
+  const diff = target - start;
+  const duration = 600;
+  const startTime = performance.now();
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + diff * eased);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function animateCount(id, text, color) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  if (color) el.style.color = color;
+}
+
+function addTimelineEntry(msg, offline) {
+  const now = new Date().toLocaleTimeString();
+  timelineEntries.unshift({ time: now, msg, offline });
+  if (timelineEntries.length > 8) timelineEntries.length = 8;
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = timelineEntries.map(e =>
+    `<div class="tl-item${e.offline ? ' offline' : ''}"><div class="tl-time">${e.time}</div><div class="tl-msg">${escapeHtml(e.msg)}</div></div>`
+  ).join('');
+}
+
+function loadErrorLog() {
+  const stored = JSON.parse(localStorage.getItem('quanquan_error_log') || '[]');
+  renderErrorLog(stored);
+}
+
+function addErrorLog(level, source, msg) {
+  const stored = JSON.parse(localStorage.getItem('quanquan_error_log') || '[]');
+  stored.unshift({ time: new Date().toLocaleTimeString(), level, source, msg });
+  if (stored.length > 10) stored.length = 10;
+  localStorage.setItem('quanquan_error_log', JSON.stringify(stored));
+  renderErrorLog(stored);
+}
+
+function renderErrorLog(entries) {
+  const body = document.getElementById('error-log-body');
+  if (entries.length === 0) {
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px;">✅ 暂无错误日志</td></tr>';
+    return;
+  }
+  body.innerHTML = entries.map(e => `
+    <tr>
+      <td style="width:80px;">${e.time}</td>
+      <td style="width:70px;"><span class="err-sev err-sev-${e.level}">${e.level.toUpperCase()}</span></td>
+      <td style="width:90px;">${escapeHtml(e.source)}</td>
+      <td>${escapeHtml(e.msg)}</td>
+    </tr>`).join('');
+}
+
+function showToast(msg, type) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + (type || 'info');
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+function formatUptime(seconds) {
+  if (!seconds) return '--';
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  let parts = [];
+  if (d > 0) parts.push(d + 'd');
+  if (h > 0 || d > 0) parts.push(h + 'h');
+  parts.push(m + 'm');
+  parts.push(s + 's');
+  return parts.join(' ');
+}
+
+function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

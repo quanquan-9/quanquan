@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>quanquan · VFX 特效引擎</title>
+<style>
+:root {
+  --bg-deep: #0a0a0f; --bg-panel: #12121a; --bg-card: #181825;
+  --bg-hover: #1e1e30; --border: #252540; --border-glow: #3a3a60;
+  --text-primary: #e8e8f0; --text-secondary: #8888aa; --text-dim: #555570;
+  --accent: #7c3aed; --accent-glow: #a78bfa; --accent-soft: rgba(124,58,237,0.15);
+  --green: #22c55e; --green-glow: #4ade80; --red: #ef4444;
+  --yellow: #f59e0b; --blue: #3b82f6; --pink: #ec4899; --orange: #f97316; --cyan: #06b6d4;
+  --radius: 12px; --radius-sm: 8px; --shadow: 0 4px 32px rgba(0,0,0,0.5);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter','PingFang SC','Microsoft YaHei',sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+
+/* Particle Background */
+.bg-particles { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse at 30% 40%, rgba(236,72,153,0.10) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 20%, rgba(124,58,237,0.08) 0%, transparent 55%),
+              radial-gradient(ellipse at 50% 85%, rgba(59,130,246,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 15% 75%, rgba(34,197,94,0.05) 0%, transparent 50%); }
+.bg-dots { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.dot { position:absolute; border-radius:50%; background:var(--pink); opacity:0.12; animation:dotFloat 6s ease-in-out infinite; }
+.dot:nth-child(1){width:3px;height:3px;top:10%;left:15%;animation-delay:0s;}
+.dot:nth-child(2){width:4px;height:4px;top:30%;left:80%;animation-delay:1.2s;}
+.dot:nth-child(3){width:2px;height:2px;top:55%;left:25%;animation-delay:2.4s;}
+.dot:nth-child(4){width:5px;height:5px;top:75%;left:70%;animation-delay:3.6s;}
+.dot:nth-child(5){width:3px;height:3px;top:20%;left:50%;animation-delay:4.8s;}
+.dot:nth-child(6){width:4px;height:4px;top:85%;left:40%;animation-delay:1.8s;}
+.dot:nth-child(7){width:2px;height:2px;top:45%;left:90%;animation-delay:3s;}
+.dot:nth-child(8){width:3px;height:3px;top:65%;left:10%;animation-delay:5.4s;}
+@keyframes dotFloat { 0%,100%{transform:translateY(0) scale(1);opacity:0.12} 50%{transform:translateY(-18px) scale(1.6);opacity:0.3} }
+
+/* Unified Nav */
+.nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; gap:6px; padding:12px 28px;
+  background:rgba(18,18,26,0.92); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
+.nav .logo { font-weight:800; font-size:18px; color:var(--text-primary); margin-right:20px; text-decoration:none; display:flex; align-items:center; gap:6px; }
+.nav .logo span { background:linear-gradient(135deg, var(--accent), var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.nav a { color:var(--text-secondary); text-decoration:none; font-size:13px; padding:8px 14px; border-radius:8px; transition:var(--transition); font-weight:500; }
+.nav a:hover { color:var(--text-primary); background:var(--bg-hover); }
+.nav a.active { color:var(--accent-glow); background:var(--accent-soft); font-weight:600; }
+.nav .nav-end { margin-left:auto; display:flex; align-items:center; gap:12px; }
+.nav .version { font-size:11px; color:var(--text-dim); padding:4px 10px; background:var(--bg-hover); border-radius:20px; }
+
+.container { position:relative; z-index:1; max-width:1340px; margin:0 auto; padding:28px 32px; }
+
+/* Header */
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+.page-header h1 { font-size:28px; font-weight:700; display:flex; align-items:center; gap:10px; }
+.page-header h1 .gradient-text { background:linear-gradient(135deg, var(--pink), var(--accent), var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+/* Category Tabs */
+.tabs { display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap; }
+.tab { padding:8px 18px; border-radius:20px; font-size:13px; cursor:pointer; transition:var(--transition); border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); font-weight:500; }
+.tab:hover { border-color:var(--border-glow); color:var(--text-primary); }
+.tab.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; box-shadow:0 4px 16px rgba(124,58,237,0.3); }
+
+/* Section */
+.section-title { font-size:18px; font-weight:700; color:var(--accent-glow); margin:28px 0 14px; display:flex; align-items:center; gap:8px; }
+.section-title .count { font-size:13px; color:var(--text-dim); font-weight:400; }
+
+/* Preset Grid */
+.preset-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:14px; margin-bottom:32px; }
+.preset-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; cursor:pointer; transition:var(--transition); position:relative; overflow:hidden; }
+.preset-card:hover { border-color:var(--border-glow); transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.5); }
+.preset-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; border-radius:4px 4px 0 0; transition:height 0.3s; }
+.preset-card:hover::before { height:6px; }
+.pc-cinematic::before { background:linear-gradient(90deg, #c084fc, #7c3aed, #a78bfa); }
+.pc-creative::before { background:linear-gradient(90deg, #f472b6, #ec4899, #f9a8d4); }
+.pc-vintage::before { background:linear-gradient(90deg, #fb923c, #f59e0b, #fbbf24); }
+.pc-nature::before { background:linear-gradient(90deg, #4ade80, #22c55e, #86efac); }
+.pc-modern::before { background:linear-gradient(90deg, #60a5fa, #3b82f6, #93c5fd); }
+.pc-default::before { background:linear-gradient(90deg, #c084fc, #7c3aed); }
+.preset-card .p-icon { font-size:34px; margin-bottom:10px; transition:transform 0.3s; }
+.preset-card:hover .p-icon { transform:scale(1.15); }
+.preset-card .p-name { font-weight:700; font-size:15px; margin-bottom:4px; }
+.preset-card .p-desc { font-size:11px; color:var(--text-dim); line-height:1.5; }
+.preset-card .p-badge { position:absolute; top:16px; right:16px; font-size:10px; padding:3px 10px; border-radius:20px; background:rgba(124,58,237,0.12); color:var(--accent-glow); transition:var(--transition); }
+.preset-card:hover .p-badge { background:rgba(124,58,237,0.25); }
+
+/* Particle Cards */
+.particle-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px; }
+.particle-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; text-align:center; min-width:130px; flex:1; transition:var(--transition); position:relative; overflow:hidden; cursor:pointer; }
+.particle-card:hover { border-color:var(--border-glow); transform:translateY(-3px); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+.particle-card .pt-icon { font-size:40px; margin-bottom:8px; display:inline-block; animation:floatIcon 3s ease-in-out infinite; }
+.particle-card:nth-child(2) .pt-icon { animation-delay:0.4s; }
+.particle-card:nth-child(3) .pt-icon { animation-delay:0.8s; }
+.particle-card:nth-child(4) .pt-icon { animation-delay:1.2s; }
+.particle-card:nth-child(5) .pt-icon { animation-delay:1.6s; }
+.particle-card:nth-child(6) .pt-icon { animation-delay:2.0s; }
+@keyframes floatIcon { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-10px) rotate(8deg)} }
+.particle-card .pt-name { font-weight:600; font-size:14px; }
+.particle-card .pt-dots { position:absolute; bottom:0; left:0; right:0; height:3px; transition:height 0.3s; }
+.particle-card:hover .pt-dots { height:5px; }
+
+/* Transition Grid */
+.transition-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(155px, 1fr)); gap:10px; margin-bottom:32px; }
+.transition-card { background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; transition:var(--transition); display:flex; align-items:center; gap:10px; cursor:pointer; }
+.transition-card:hover { border-color:var(--accent); background:rgba(124,58,237,0.1); transform:scale(1.03); }
+.transition-card .t-icon { font-size:22px; transition:transform 0.3s; }
+.transition-card:hover .t-icon { transform:rotate(15deg) scale(1.2); }
+.transition-card .t-name { font-size:13px; font-weight:500; }
+
+/* Preview Demo Area */
+.demo-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:20px; }
+.demo-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-hover); }
+.demo-header h3 { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.demo-body { padding:20px; }
+.preview-stage { background:var(--bg-panel); border:2px dashed var(--border); border-radius:var(--radius); padding:50px 20px; text-align:center; position:relative; overflow:hidden; min-height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.preview-stage .preview-icon { font-size:64px; transition:all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); display:inline-block; }
+.preview-stage .preview-label { font-size:16px; font-weight:600; color:var(--accent-glow); margin-top:12px; transition:all 0.4s; }
+.preview-stage .preview-desc { font-size:12px; color:var(--text-dim); margin-top:6px; }
+
+/* Filter effect simulations */
+.preview-effect { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity 0.6s; }
+.preview-effect.active { opacity:1; }
+.effect-cinematic { background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.5) 100%); }
+.effect-creative { background:radial-gradient(circle at 50% 50%, rgba(236,72,153,0.15), transparent 70%); }
+.effect-vintage { background:rgba(245,158,11,0.08); filter:sepia(0.3) contrast(1.1); }
+.effect-nature { background:linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.05)); }
+.effect-modern { background:linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.06)); }
+
+/* Particle Preview Animation */
+.particle-sparkle { position:absolute; width:4px; height:4px; background:var(--accent-glow); border-radius:50%; animation:sparkleFloat 2s ease-in-out infinite; }
+.particle-sparkle:nth-child(1){left:10%;top:20%;animation-delay:0s;}
+.particle-sparkle:nth-child(2){left:30%;top:60%;animation-delay:0.3s;}
+.particle-sparkle:nth-child(3){left:50%;top:30%;animation-delay:0.6s;}
+.particle-sparkle:nth-child(4){left:70%;top:70%;animation-delay:0.9s;}
+.particle-sparkle:nth-child(5){left:90%;top:40%;animation-delay:1.2s;}
+.particle-sparkle:nth-child(6){left:20%;top:80%;animation-delay:1.5s;}
+.particle-sparkle:nth-child(7){left:60%;top:15%;animation-delay:1.8s;}
+.particle-sparkle:nth-child(8){left:80%;top:55%;animation-delay:2.1s;}
+@keyframes sparkleFloat { 0%,100%{transform:translateY(0) scale(1);opacity:0} 50%{transform:translateY(-30px) scale(2);opacity:1} }
+
+/* Action Button */
+.btn { padding:10px 22px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:var(--transition); border:none; display:inline-flex; align-items:center; gap:8px; }
+.btn-primary { background:linear-gradient(135deg, var(--accent), var(--pink)); color:#fff; }
+.btn-primary:hover { box-shadow:0 0 28px rgba(124,58,237,0.45); transform:translateY(-1px); }
+.btn-apply { background:var(--green); color:#fff; }
+.btn-apply:hover { box-shadow:0 0 24px rgba(34,197,94,0.4); transform:translateY(-1px); }
+
+/* Toast */
+.toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast { padding:12px 20px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; animation:slideIn 0.35s ease; box-shadow:0 8px 24px rgba(0,0,0,0.6); pointer-events:auto; backdrop-filter:blur(8px); }
+.toast-success { background:rgba(34,197,94,0.2); border:1px solid rgba(34,197,94,0.4); color:var(--green-glow); }
+.toast-info { background:rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.4); color:var(--accent-glow); }
+@keyframes slideIn { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* Footer */
+.footer { text-align:center; padding:16px; color:var(--text-dim); font-size:11px; border-top:1px solid var(--border); margin-top:32px; }
+.footer .ver { color:var(--accent-glow); font-weight:600; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--border-glow); }
+
+/* No data */
+.empty-state { text-align:center; padding:60px 20px; color:var(--text-dim); }
+.empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+
+@media (max-width:768px) {
+  .nav { overflow-x:auto; padding:10px 14px; gap:4px; }
+  .nav a { font-size:11px; padding:6px 10px; white-space:nowrap; }
+  .container { padding:16px; }
+  .preset-grid { grid-template-columns:repeat(2,1fr); }
+  .transition-grid { grid-template-columns:repeat(2,1fr); }
+  .particle-row { flex-direction:row; overflow-x:auto; }
+  .page-header h1 { font-size:22px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-particles"></div>
+<div class="bg-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+
+<!-- Unified Nav -->
+<nav class="nav">
+  <a href="/dashboard" class="logo">🎬 <span>quanquan</span></a>
+  <a href="/dashboard">📊 控制台</a>
+  <a href="/api/v1/vfx/presets" class="active">🎨 VFX</a>
+  <a href="/api/v1/platforms">📡 平台</a>
+  <a href="/api/v1/analytics/dashboard">📈 分析</a>
+  <a href="/api/v1/batch">📦 批量</a>
+  <a href="/api/v1/thumbnail">🖼️ 缩略图</a>
+  <span class="nav-end"><span class="version">v7.0</span></span>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1><span class="gradient-text">🎨 VFX 特效引擎</span></h1>
+  </div>
+
+  <!-- Filter Preview Demo Area -->
+  <div class="demo-panel">
+    <div class="demo-header">
+      <h3>🎥 实时预览区</h3>
+      <span style="font-size:12px;color:var(--text-dim);">点击预设卡片或粒子卡片查看效果</span>
+    </div>
+    <div class="demo-body">
+      <div class="preview-stage" id="preview-stage">
+        <div class="preview-effect effect-cinematic" id="effect-cinematic"></div>
+        <div class="preview-effect" id="effect-creative" style="background:radial-gradient(circle at 50% 50%, rgba(236,72,153,0.15), transparent 70%);"></div>
+        <div class="preview-effect" id="effect-vintage" style="background:rgba(245,158,11,0.08); filter:sepia(0.3) contrast(1.1);"></div>
+        <div class="preview-effect" id="effect-nature" style="background:linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.05));"></div>
+        <div class="preview-effect" id="effect-modern" style="background:linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.06));"></div>
+        <div id="particle-layer"></div>
+        <div class="preview-icon" id="preview-icon">🎬</div>
+        <div class="preview-label" id="preview-label">选择预设查看效果</div>
+        <div class="preview-desc" id="preview-desc">点击下方滤镜或粒子卡片开始预览</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+        <button class="btn btn-apply" onclick="applyToProject()">✅ 应用到项目</button>
+        <button class="btn btn-primary" onclick="resetPreview()">🔄 重置预览</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vfx-root" style="color:var(--text-dim);text-align:center;padding:60px 20px;">
+    <div style="font-size:40px;margin-bottom:16px;">🎬</div>
+    <div>加载特效数据中...</div>
+  </div>
+
+  <div class="footer">
+    quanquan <span class="ver">v7.0</span> · VFX 特效引擎
+  </div>
+</div>
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const API = '/api/v1';
+const CATEGORY_ICONS = { cinematic:'🎬', creative:'🎨', vintage:'📽️', nature:'🌿', modern:'✨', portrait:'👤', food:'🍜', urban:'🏙️', travel:'✈️', anime:'🌸', warmth:'🌅', cool:'❄️', scifi:'🚀', special:'🎯', default:'🎞️' };
+const CATEGORY_CLASS = { cinematic:'pc-cinematic', creative:'pc-creative', vintage:'pc-vintage', nature:'pc-nature', modern:'pc-modern', default:'pc-default' };
+const PARTICLE_EMOJIS = { snow:'❄️', rain:'🌧️', fire:'🔥', sparkle:'✨', confetti:'🎊', bokeh:'💫', smoke:'💨', lightning:'⚡', magic:'🪄', stars:'⭐', petals:'🌸', bubbles:'🫧' };
+const TRANSITION_EMOJIS = ['🔀','✨','🌀','💫','⬅️','➡️','📖','🎬','🔲','🔄','👁️','🌊','💥','🎯','🌈','🎭','🪞','🌪️','⚡','🔥'];
+const CATEGORY_LABELS = { all:'全部', cinematic:'电影级', creative:'创意', vintage:'复古', nature:'自然', modern:'现代' };
+
+let allPresets = [];
+let activeCategory = 'all';
+let selectedPreset = null;
+
+async function init() {
+  try {
+    const [pResp, tResp, ptResp] = await Promise.all([
+      fetch(`${API}/vfx/presets-data`).catch(() => null),
+      fetch(`${API}/vfx/transitions`).catch(() => null),
+      fetch(`${API}/vfx/particles`).catch(() => null),
+    ]);
+    const presets = pResp?.ok ? await pResp.json() : { presets: {} };
+    const transitions = tResp?.ok ? await tResp.json() : { transitions: {} };
+    let particles;
+    try { particles = ptResp?.ok ? await ptResp.json() : null; } catch(e) { particles = null; }
+
+    // 兼容 dict 和 array 两种格式
+    let rawPresets = presets.data?.presets || presets.presets || {};
+    allPresets = Array.isArray(rawPresets) ? rawPresets : Object.entries(rawPresets).map(([id, v]) => ({...v, id: id || v.name}));
+
+    let rawTransitions = transitions.data?.transitions || transitions.transitions || {};
+    const transitionList = Array.isArray(rawTransitions) ? rawTransitions : Object.values(rawTransitions);
+
+    let rawParticles = particles?.data?.particles || particles?.particles || null;
+    const particleList = (Array.isArray(rawParticles) ? rawParticles : Object.values(rawParticles || {})) || [
+      {name:'snow',id:'snow'},{name:'rain',id:'rain'},{name:'fire',id:'fire'},
+      {name:'sparkle',id:'sparkle'},{name:'confetti',id:'confetti'},{name:'bokeh',id:'bokeh'}
+    ]).slice(0, 8);
+    render(allPresets, transitionList, particleList);
+  } catch(e) {
+    document.getElementById('vfx-root').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>加载失败: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function render(presets, transitions, particles) {
+  const filtered = activeCategory === 'all' ? presets : presets.filter(p => (p.category || 'default') === activeCategory);
+
+  const tabs = ['all', ...new Set(presets.map(p => p.category || 'default').filter(c => CATEGORY_LABELS[c]))];
+  const tabsHtml = tabs.map(c => {
+    const label = CATEGORY_LABELS[c] || c;
+    const count = c === 'all' ? presets.length : presets.filter(p => (p.category||'default') === c).length;
+    return `<button class="tab${activeCategory === c ? ' active' : ''}" onclick="filterCategory('${c}')">${label} <span style="font-size:10px;opacity:0.7;">${count}</span></button>`;
+  }).join('');
+
+  const presetHtml = filtered.length === 0
+    ? '<div class="empty-state"><div class="empty-icon">🔍</div>该分类下暂无滤镜预设</div>'
+    : filtered.map(p => {
+        const cat = p.category || 'default';
+        const catClass = CATEGORY_CLASS[cat] || CATEGORY_CLASS.default;
+        const icon = CATEGORY_ICONS[cat] || CATEGORY_ICONS.default;
+        return `<div class="preset-card ${catClass}" onclick="previewPreset('${escapeHtml(p.name)}', '${escapeHtml(p.desc||'')}', '${escapeHtml(cat)}')">
+          <div class="p-icon">${icon}</div>
+          <div class="p-name">${escapeHtml(p.name)}</div>
+          <div class="p-desc">${escapeHtml(p.desc || '高质量电影级滤镜效果')}</div>
+          <div class="p-badge">${CATEGORY_LABELS[cat] || cat}</div>
+        </div>`;
+      }).join('');
+
+  const particleHtml = particles.map((p, i) => {
+    const name = p.name || p.id || '';
+    const gradients = [
+      'linear-gradient(90deg, transparent, #a5f3fc, #06b6d4, transparent)',
+      'linear-gradient(90deg, transparent, #93c5fd, #3b82f6, transparent)',
+      'linear-gradient(90deg, transparent, #fca5a5, #ef4444, transparent)',
+      'linear-gradient(90deg, transparent, #fde047, #eab308, transparent)',
+      'linear-gradient(90deg, transparent, #c084fc, #a855f7, transparent)',
+      'linear-gradient(90deg, transparent, #86efac, #22c55e, transparent)',
+      'linear-gradient(90deg, transparent, #fdba74, #f97316, transparent)',
+      'linear-gradient(90deg, transparent, #f9a8d4, #ec4899, transparent)',
+    ];
+    return `<div class="particle-card" onclick="previewParticle('${escapeHtml(name)}', '${i}')">
+      <div class="pt-icon">${PARTICLE_EMOJIS[name.toLowerCase()] || '✨'}</div>
+      <div class="pt-name">${escapeHtml(name)}</div>
+      <div class="pt-dots" style="background:${gradients[i % gradients.length]}"></div>
+    </div>`;
+  }).join('');
+
+  const transitionHtml = transitions.map((t, i) => `
+    <div class="transition-card" onclick="showToast('转场: ${escapeHtml(t.name)} (点击预览)', 'info')">
+      <div class="t-icon">${TRANSITION_EMOJIS[i % TRANSITION_EMOJIS.length]}</div>
+      <div class="t-name">${escapeHtml(t.name)}</div>
+    </div>`).join('');
+
+  document.getElementById('vfx-root').innerHTML = `
+    ${tabsHtml ? `<div class="tabs">${tabsHtml}</div>` : ''}
+    <div class="section-title">🎬 电影级滤镜预设 <span class="count">(${filtered.length} 种)</span></div>
+    <div class="preset-grid">${presetHtml}</div>
+    <div class="section-title">✨ 粒子特效 <span class="count">(${particles.length} 种)</span></div>
+    <div class="particle-row">${particleHtml}</div>
+    <div class="section-title">🔀 创意转场 <span class="count">(${transitions.length} 种)</span></div>
+    <div class="transition-grid">${transitionHtml || '<div class="empty-state"><div class="empty-icon">🔀</div>暂无转场数据</div>'}</div>
+  `;
+}
+
+function filterCategory(cat) {
+  activeCategory = cat;
+  // Re-render (we need allPresets still in scope; let's just reload)
+  const transitionList = [];
+  const particleList = [];
+  // Rebuild from DOM data
+  render(allPresets, transitionList, particleList);
+  // Actually we lost transitions/particles... let's reinit
+  init();
+}
+
+function previewPreset(name, desc, cat) {
+  selectedPreset = { name, desc, cat };
+  document.getElementById('preview-icon').textContent = CATEGORY_ICONS[cat] || '🎬';
+  document.getElementById('preview-icon').style.transform = 'scale(1.3) rotate(5deg)';
+  setTimeout(() => { document.getElementById('preview-icon').style.transform = 'scale(1) rotate(0deg)'; }, 400);
+  document.getElementById('preview-label').textContent = name;
+  document.getElementById('preview-desc').textContent = desc || '高质量视觉效果';
+  document.getElementById('preview-label').style.color = 'var(--accent-glow)';
+
+  // Activate relevant effect overlay
+  document.querySelectorAll('.preview-effect').forEach(e => e.classList.remove('active'));
+  const effectMap = { cinematic:'effect-cinematic', creative:'effect-creative', vintage:'effect-vintage', nature:'effect-nature', modern:'effect-modern' };
+  const effectEl = document.getElementById(effectMap[cat]);
+  if (effectEl) effectEl.classList.add('active');
+
+  // Clear particle layer
+  document.getElementById('particle-layer').innerHTML = '';
+
+  showToast('已选择: ' + name, 'info');
+  scrollToPreview();
+}
+
+function previewParticle(name, index) {
+  document.getElementById('preview-label').textContent = '粒子: ' + name;
+  document.getElementById('preview-label').style.color = 'var(--accent-glow)';
+  document.getElementById('preview-icon').style.transform = 'scale(0.9)';
+  setTimeout(() => { document.getElementById('preview-icon').style.transform = 'scale(1)'; }, 300);
+
+  // Add particle animation
+  const layer = document.getElementById('particle-layer');
+  layer.innerHTML = Array.from({length:8}, (_,i) => `<div class="particle-sparkle" style="animation-delay:${i*0.25}s"></div>`).join('');
+
+  document.querySelectorAll('.preview-effect').forEach(e => e.classList.remove('active'));
+  showToast('粒子效果预览: ' + name, 'info');
+  scrollToPreview();
+}
+
+function resetPreview() {
+  document.getElementById('preview-icon').textContent = '🎬';
+  document.getElementById('preview-icon').style.transform = 'scale(1)';
+  document.getElementById('preview-label').textContent = '选择预设查看效果';
+  document.getElementById('preview-label').style.color = 'var(--accent-glow)';
+  document.getElementById('preview-desc').textContent = '点击下方滤镜或粒子卡片开始预览';
+  document.querySelectorAll('.preview-effect').forEach(e => e.classList.remove('active'));
+  document.getElementById('particle-layer').innerHTML = '';
+  selectedPreset = null;
+  showToast('预览已重置', 'info');
+}
+
+function applyToProject() {
+  if (!selectedPreset) {
+    showToast('请先选择一个滤镜预设或粒子效果', 'info');
+    return;
+  }
+  showToast('✅ 已将 "' + selectedPreset.name + '" 应用到当前项目', 'success');
+  // localStorage persistence
+  const applied = JSON.parse(localStorage.getItem('quanquan_applied_effects') || '[]');
+  applied.unshift({ name: selectedPreset.name, cat: selectedPreset.cat, time: new Date().toISOString() });
+  localStorage.setItem('quanquan_applied_effects', JSON.stringify(applied.slice(0, 10)));
+}
+
+function scrollToPreview() {
+  document.getElementById('preview-stage').parentElement.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showToast(msg, type) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + (type || 'info');
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '0.3s'; setTimeout(() => el.remove(), 300); }, 2800);
+}
+
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

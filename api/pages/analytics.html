@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>quanquan · 分析面板</title>
+<style>
+:root{--bg:#0a0a0f;--panel:#12121a;--card:#181825;--hover:#1e1e30;--border:#252540;--glow:#3a3a60;--text:#e8e8f0;--dim:#8888aa;--accent:#7c3aed;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--pink:#ec4899;--radius:12px;--r:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 30% 20%,rgba(59,130,246,.05) 0%,transparent 50%),radial-gradient(ellipse at 70% 70%,rgba(124,58,237,.05) 0%,transparent 50%)}
+nav{position:relative;z-index:10;display:flex;align-items:center;gap:8px;padding:14px 28px;background:rgba(18,18,26,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-wrap:wrap}
+nav .logo{font-weight:800;font-size:18px;color:var(--text);margin-right:auto;display:flex;align-items:center;gap:8px}
+nav a{color:var(--dim);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:20px;transition:all .2s}
+nav a:hover,nav a.active{color:var(--accent2);background:rgba(124,58,237,.1)}
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:28px}
+h1{font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--dim);font-size:13px;margin-bottom:24px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .3s}
+.stat:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.stat .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .s{font-size:11px;color:var(--dim);margin-top:4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.phead{padding:14px 20px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px}
+.pbody{padding:20px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.row:last-child{border:none}
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px}
+.barf{height:100%;border-radius:4px;transition:width .5s}
+.footer{text-align:center;padding:20px;color:var(--dim);font-size:11px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.loading{color:var(--dim);text-align:center;padding:60px;animation:pulse 1.5s infinite}
+@media(max-width:768px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<nav>
+  <span class="logo">🎬 quanquan</span>
+  <a href="/dashboard">🎛️ 控制台</a>
+  <a href="/api/v1/health">💚 健康</a>
+  <a href="/api/v1/vfx/presets">🎨 VFX</a>
+  <a href="/api/v1/platforms">📡 发布</a>
+  <a href="/api/v1/analytics/dashboard" class="active">📈 分析</a>
+  <a href="/api/v1/batch">📦 批量</a>
+</nav>
+<div class="container">
+  <h1>📈 分析面板</h1>
+  <p class="subtitle" id="refresh">自动刷新中...</p>
+  <div id="content"><div class="loading">📊 加载数据中...</div></div>
+</div>
+<div class="footer">quanquan v7.0 · 数据分析引擎</div>
+<script>
+const A='/api/v1';
+async function load(){
+  try{
+    const[d,c]=await Promise.all([fetch(A+'/analytics/dashboard-data'),fetch(A+'/analytics/cost')]);
+    const dash=await d.json(),cost=await c.json();
+    const p=dash.projects||{},v=dash.video||{},l=dash.llm||{},e=dash.errors||{};
+    document.getElementById('refresh').textContent='最后更新: '+new Date().toLocaleTimeString();
+    const providers=l.by_provider||{};
+    const maxTokens=Math.max(1,...Object.values(providers).map(x=>x.total_tokens||0));
+    document.getElementById('content').innerHTML=`
+      <div class="g4">
+        <div class="stat"><div class="l">项目总数</div><div class="v" style="color:var(--blue)">${p.created||0}</div><div class="s">完成 ${p.completed||0} · 率 ${Math.round((p.completion_rate||0)*100)}%</div></div>
+        <div class="stat"><div class="l">视频总时长</div><div class="v" style="color:var(--pink)">${(v.total_seconds||0).toFixed(0)}s</div><div class="s">渲染 ${v.total_renders||0} 次 · 均${(v.avg_render_time_sec||0).toFixed(1)}s</div></div>
+        <div class="stat"><div class="l">LLM 调用</div><div class="v" style="color:var(--accent)">${l.total_calls||0}</div><div class="s">${(l.total_tokens||0).toLocaleString()} tokens</div></div>
+        <div class="stat"><div class="l">预估成本</div><div class="v" style="color:var(--yellow)">$${(cost.total_usd||0).toFixed(4)}</div><div class="s">错误率 ${((e.error_rate||0)*100).toFixed(1)}%</div></div>
+      </div>
+      <div class="g2">
+        <div class="panel"><div class="phead">🤖 LLM 用量分布</div><div class="pbody">${Object.keys(providers).length===0?'<div style="color:var(--dim);text-align:center;padding:20px">暂无数据</div>':Object.entries(providers).map(([n,s])=>{const pct=maxTokens>0?(s.total_tokens||0)/maxTokens*100:0;return`<div><div class="row"><span>${n}</span><span style="color:var(--accent2)">${(s.calls||0)}次 · ${(s.total_tokens||0).toLocaleString()}t</span></div><div class="bar"><div class="barf" style="width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div></div>`}).join('')}</div></div>
+        <div class="panel"><div class="phead">📊 项目分布</div><div class="pbody">
+          <div class="row"><span>活跃项目</span><span style="color:var(--green)">${dash.active_projects||0}</span></div>
+          <div class="row"><span>已完成</span><span style="color:var(--accent2)">${p.completed||0}</span></div>
+          <div class="row"><span>TTS 生成</span><span>${dash.tts?.total_chars?.toLocaleString()||0} 字</span></div>
+          <div class="row"><span>错误总数</span><span style="color:var(--red)">${e.total||0}</span></div>
+        </div></div>
+      </div>`;
+  }catch(e){document.getElementById('content').innerHTML=`<div style="color:var(--red);text-align:center;padding:60px">加载失败: ${e.message}</div>`}
+}
+load();setInterval(load,10000);
+</script>
+</body>
+</html>

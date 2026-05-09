@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+
+# 环境
+.env
+*.db
+*.db-journal
+*.db-wal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 测试
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+.coverage
+
+# 构建
+build/
+*.so
+
+# 产物
+output/*.mp4
+output/*.srt
+artifacts/
+
+# 密钥
+.secrets/
+*.pem
+*.key
+
+# 系统
+.DS_Store
+Thumbs.db

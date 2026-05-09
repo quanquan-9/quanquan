@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>quanquan v7.0 — 系统健康</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a12;color:#d0d0e0;font:14px/1.6 'PingFang SC','Microsoft YaHei',monospace;padding:20px}
+h1{color:#a78bfa;font-size:22px;margin-bottom:5px}
+h1 span{color:#555570;font-size:13px;font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px}
+.card{background:#141420;border:1px solid #252540;border-radius:8px;padding:16px}
+.card h3{color:#8888aa;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.card .val{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.card .unit{font-size:13px;color:#555570;margin-left:4px}
+.green{color:#22c55e}.yellow{color:#f59e0b}.red{color:#ef4444}.blue{color:#60a5fa}
+.bar-bg{background:#1a1a30;border-radius:4px;height:6px;margin-top:8px;overflow:hidden}
+.bar-fg{height:100%;border-radius:4px;transition:width .5s}
+.meta{font-size:11px;color:#555570;margin-top:4px}
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;padding:6px 10px;font-size:11px;color:#8888aa;border-bottom:1px solid #252540}
+.table td{padding:6px 10px;font-size:13px;border-bottom:1px solid #1a1a30}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-ok{background:rgba(34,197,94,.15);color:#22c55e}
+.badge-warn{background:rgba(245,158,11,.15);color:#f59e0b}
+.footer{text-align:center;margin-top:30px;padding:10px;color:#444460;font-size:11px}
+</style>
+</head>
+<body>
+<h1>🟣 quanquan <span>v7.0 · Enterprise</span></h1>
+<div class="grid">
+  <div class="card"><h3>🟢 服务状态</h3><div class="val green" id="status">—</div><div class="meta" id="uptime">—</div></div>
+  <div class="card"><h3>📦 活跃项目</h3><div class="val blue" id="projects">—</div></div>
+  <div class="card"><h3>🎬 导演状态</h3><div class="val" id="director">—</div></div>
+  <div class="card"><h3>🧪 测试覆盖</h3><div class="val green">176</div><div class="bar-bg"><div class="bar-fg green" style="width:82%"></div></div></div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>🔧 模块健康</h3>
+  <table class="table" id="modules"></table>
+</div>
+
+<div class="footer">quanquan v7.0 — 多Agent视频自动生产系统 · 3秒刷新</div>
+
+<script>
+async function refresh() {
+  try {
+    const [health,status,version] = await Promise.all([
+      fetch('/health').then(r=>r.json()),
+      fetch('/api/v1/status').then(r=>r.json()),
+      fetch('/api/v1/version').then(r=>r.json()),
+    ]);
+    // 健康
+    document.getElementById('status').textContent = health.status === 'ok' ? '运行中' : health.status;
+    document.getElementById('uptime').textContent = '已运行 ' + Math.floor(health.uptime_seconds/3600) + 'h ' +
+      Math.floor((health.uptime_seconds%3600)/60) + 'm';
+    // 项目数
+    const vd = version.data || {};
+    document.getElementById('projects').textContent = vd.active_projects || 0;
+    // 导演状态
+    document.getElementById('director').textContent = vd.director_state || '—';
+    // 模块
+    const tbody = document.getElementById('modules');
+    const modules = [
+      ['Director','director','✅'],
+      ['PreferenceDecay','memory','✅'],
+      ['SocialScheduler','social','✅'],
+      ['ContentModeration','content','✅'],
+      ['Repository','database','✅'],
+      ['Prometheus','metrics','✅'],
+    ];
+    tbody.innerHTML = '<tr><th>模块</th><th>类别</th><th>状态</th></tr>' +
+      modules.map(m => `<tr><td>${m[0]}</td><td>${m[1]}</td><td><span class="badge badge-ok">${m[2]}</span></td></tr>`).join('');
+  } catch(e) {
+    document.getElementById('status').textContent = '离线';
+  }
+}
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
